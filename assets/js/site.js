@@ -35,7 +35,10 @@
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     },
     {
-      title: "Test"
+      title: "Test",
+      type: "hyperobject",
+      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
+      preview: "assets/video/tesseract_video01.webm"
     }
   ];
 
