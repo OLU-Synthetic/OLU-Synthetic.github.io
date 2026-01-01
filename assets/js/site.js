@@ -2,7 +2,7 @@
   // ========= Theme (default dark; remembers choice) =========
   const themeBtn = document.getElementById("themeBtn");
   const savedTheme = localStorage.getItem("theme");
-  const initialTheme = savedTheme || document.documentElement.getAttribute("data-theme") || "dark";
+  const initialTheme = savedTheme || "dark";
   document.documentElement.setAttribute("data-theme", initialTheme);
 
   themeBtn?.addEventListener("click", () => {
@@ -12,7 +12,7 @@
     localStorage.setItem("theme", next);
   });
 
-  // ========= Works (links go to runtimes) =========
+  // ========= Works =========
   const WORKS = [
     {
       title: "ATHAMAL",
@@ -30,7 +30,7 @@
       type: "tool",
       medium: "Realtime instrument",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      href: "works/athamal/", // change later to works/tesseract_engine/
+      href: "works/athamal/",
       preview: "assets/video/tesseract_preview.webm",
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     }
@@ -41,34 +41,26 @@
   if (featuredCard && WORKS[0]) {
     const w = WORKS[0];
     featuredCard.innerHTML = `
-      <p class="muted tiny" style="margin:0 0 8px;">Featured</p>
+      <p style="margin:0 0 8px;opacity:.75;font-size:12px;letter-spacing:.14em;text-transform:uppercase">Featured</p>
       <h3 style="margin:0 0 6px; letter-spacing:-0.01em;">${escapeHtml(w.title)}</h3>
-      <div class="workMeta" style="margin-bottom:10px;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;opacity:.75;font-size:13px;margin-bottom:10px">
         <span>${escapeHtml(w.year)}</span>
         <span>•</span>
         <span>${escapeHtml(w.medium)}</span>
-        <span class="tag">${escapeHtml(w.type)}</span>
+        <span style="border:1px solid var(--line);padding:2px 8px;border-radius:999px;font-size:12px">${escapeHtml(w.type)}</span>
       </div>
-      <p class="muted" style="margin:0 0 12px; line-height:1.35;">${escapeHtml(w.desc)}</p>
-      <a class="btnLike" href="${w.href}">Open runtime ↗</a>
+      <p style="margin:0 0 12px;opacity:.75;line-height:1.35;">${escapeHtml(w.desc)}</p>
+      <a href="${w.href}" style="display:inline-block;border:1px solid var(--line);padding:8px 12px;border-radius:999px;text-decoration:none">Open runtime ↗</a>
     `;
   }
 
-  // add a tiny button style without needing CSS changes
-  const style = document.createElement("style");
-  style.textContent = `
-    .btnLike{display:inline-block;border:1px solid var(--line);padding:8px 12px;border-radius:999px;text-decoration:none}
-  `;
-  document.head.appendChild(style);
-
-  // ========= Works grid (video previews; click opens runtime) =========
+  // ========= Works grid =========
   const grid = document.getElementById("worksGrid");
   if (grid) {
     grid.innerHTML = WORKS.map(w => `
       <a class="work" href="${w.href}">
         <video class="workPreview" autoplay loop muted playsinline preload="metadata"
           src="${w.preview}" poster="${w.poster || ""}"></video>
-
         <div class="workBody">
           <h3 class="workTitle">${escapeHtml(w.title)}</h3>
           <div class="workMeta">
@@ -88,43 +80,69 @@
   if (y) y.textContent = String(new Date().getFullYear());
 
   // ==========================================================
-  // AUDIO: Minimal icon + volume slider (procedural warm bed)
+  // AUDIO: click-to-start procedural bed (robust)
   // ==========================================================
   const audioBtn = document.getElementById("audioBtn");
   const audioIcon = document.getElementById("audioIcon");
   const vol = document.getElementById("vol");
 
-  // Remember volume
+  // Default low volume + remember
   const savedVol = localStorage.getItem("vol");
   if (savedVol !== null && vol) vol.value = String(clamp(Number(savedVol), 0, 1));
 
   let ctx = null;
   let master = null;
-  let droneA = null, droneB = null, droneGain = null;
+  let comp = null;
+
+  let droneA = null, droneB = null;
+  let droneGain = null;
+
   let noiseSrc = null, noiseGain = null;
-  let lp = null, sat = null;
+
+  let sat = null, lp = null;
   let isOn = false;
 
-  function ensureGraph(){
+  function setIcon(on){
+    if (!audioIcon) return;
+    audioIcon.innerHTML = on
+      ? `<path d="M7 5h4v14H7zM13 5h4v14h-4z"></path>`
+      : `<path d="M8 5v14l12-7z"></path>`;
+  }
+
+  async function ensureAudio(){
     if (ctx) return;
 
     ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-    master = ctx.createGain();
-    master.gain.value = 0.0; // start silent
-    master.connect(ctx.destination);
+    // IMPORTANT: resume first (some browsers are picky)
+    if (ctx.state === "suspended") {
+      try { await ctx.resume(); } catch (e) { console.warn("Audio resume failed", e); }
+    }
 
+    master = ctx.createGain();
+    master.gain.value = 0.0;
+
+    comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -24;
+    comp.knee.value = 30;
+    comp.ratio.value = 12;
+    comp.attack.value = 0.003;
+    comp.release.value = 0.25;
+
+    // saturation -> lowpass -> compressor -> master -> destination
     sat = ctx.createWaveShaper();
     sat.curve = makeSaturationCurve(0.95);
     sat.oversample = "4x";
 
     lp = ctx.createBiquadFilter();
     lp.type = "lowpass";
-    lp.frequency.value = 1400;
+    lp.frequency.value = 1600;
     lp.Q.value = 0.7;
 
     sat.connect(lp);
-    lp.connect(master);
+    lp.connect(comp);
+    comp.connect(master);
+    master.connect(ctx.destination);
 
     // drone
     droneA = ctx.createOscillator();
@@ -156,7 +174,7 @@
     for (let i = 0; i < bufferSize; i++){
       const white = Math.random() * 2 - 1;
       last = (last + 0.02 * white) / 1.02;
-      data[i] = last * 3.0;
+      data[i] = last * 2.8;
     }
 
     const src = ac.createBufferSource();
@@ -165,13 +183,14 @@
     return src;
   }
 
-  function startAudio(){
-    ensureGraph();
+  async function startAudio(){
+    await ensureAudio();
 
-    // must be user gesture in most browsers
-    if (ctx.state === "suspended") ctx.resume();
+    if (ctx && ctx.state === "suspended") {
+      try { await ctx.resume(); } catch (e) { console.warn("Audio resume failed", e); }
+    }
 
-    // recreate noise each time
+    // recreate noise each start
     if (noiseSrc){
       try { noiseSrc.stop(); } catch {}
       try { noiseSrc.disconnect(); } catch {}
@@ -184,7 +203,7 @@
 
     noiseSrc = makeNoiseSource(ctx);
     noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.02;
+    noiseGain.gain.value = 0.015;
 
     noiseSrc.connect(noiseGain);
     noiseGain.connect(sat);
@@ -193,10 +212,11 @@
     isOn = true;
     setIcon(true);
 
-    // fade in at safe levels
-    const v = Number(vol?.value ?? 0.15);
-    master.gain.setTargetAtTime(clamp(v,0,1), ctx.currentTime, 0.12);
-    droneGain.gain.setTargetAtTime(0.08, ctx.currentTime, 0.12);
+    const v = clamp(Number(vol?.value ?? 0.10), 0, 1);
+
+    // safe fade-in
+    master.gain.setTargetAtTime(v, ctx.currentTime, 0.10);
+    droneGain.gain.setTargetAtTime(0.06, ctx.currentTime, 0.10);
   }
 
   function stopAudio(){
@@ -218,17 +238,8 @@
     }
   }
 
-  function setIcon(on){
-    if (!audioIcon) return;
-    audioIcon.innerHTML = on
-      // pause icon
-      ? `<path d="M7 5h4v14H7zM13 5h4v14h-4z"></path>`
-      // play icon
-      : `<path d="M8 5v14l12-7z"></path>`;
-  }
-
   function applyVolume(){
-    const v = clamp(Number(vol?.value ?? 0.15), 0, 1);
+    const v = clamp(Number(vol?.value ?? 0.10), 0, 1);
     localStorage.setItem("vol", String(v));
     if (!ctx || !master) return;
     if (isOn) master.gain.setTargetAtTime(v, ctx.currentTime, 0.10);
@@ -241,10 +252,10 @@
 
   vol?.addEventListener("input", applyVolume);
 
-  // Keep default volume low (you asked ~15% of current)
+  // initialize icon + volume
+  setIcon(false);
   applyVolume();
 
-  // Helpers
   function makeSaturationCurve(amount){
     const n = 2048;
     const curve = new Float32Array(n);
@@ -261,6 +272,5 @@
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
     }[c]));
   }
-
   function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 })();
