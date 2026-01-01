@@ -30,7 +30,7 @@
       type: "tool",
       medium: "Realtime instrument",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      href: "works/athamal/", // TODO: change later to works/tesseract_engine/
+      href: "works/athamal/",
       preview: "assets/video/tesseract_preview.webm",
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     }
@@ -80,169 +80,93 @@
   if (y) y.textContent = String(new Date().getFullYear());
 
   // ==========================================================
-  // PROCEDURAL AUDIO: warm ambient + subtle space
-  // - starts on first gesture (scroll/click/touch/wheel/keydown)
-  // - play/pause icon + one slim volume slider
+  // AUDIO: click-to-start procedural bed (robust)
   // ==========================================================
   const audioBtn = document.getElementById("audioBtn");
   const audioIcon = document.getElementById("audioIcon");
   const vol = document.getElementById("vol");
 
-  // default volume low
+  // Default low volume + remember
   const savedVol = localStorage.getItem("vol");
   if (savedVol !== null && vol) vol.value = String(clamp(Number(savedVol), 0, 1));
   if (vol && savedVol === null) vol.value = "0.10";
 
   let ctx = null;
   let master = null;
+  let comp = null;
 
-  // main shaping
-  let sat = null;
-  let lp = null;
-
-  // space (gentle delay network)
-  let delay = null;
-  let fb = null;
-  let fbLP = null;
-  let wet = null;
-
-  // sources
+  let droneA = null, droneB = null;
   let droneGain = null;
-  let noiseGain = null;
 
-  let oscA = null, oscB = null, oscC = null;
-  let noiseSrc = null;
+  let noiseSrc = null, noiseGain = null;
 
-  // LFO for slow movement
-  let lfo = null;
-  let lfoGain = null;
-
+  let sat = null, lp = null;
   let isOn = false;
-  let armed = true;
-  let driftTimer = null;
 
   function setIcon(on){
     if (!audioIcon) return;
     audioIcon.innerHTML = on
-      ? `<path d="M7 5h4v14H7zM13 5h4v14h-4z"></path>` // pause
-      : `<path d="M8 5v14l12-7z"></path>`;           // play
+      ? `<path d="M7 5h4v14H7zM13 5h4v14h-4z"></path>`
+      : `<path d="M8 5v14l12-7z"></path>`;
   }
-
-  function applyVolume(){
-    const v = clamp(Number(vol?.value ?? 0.10), 0, 1);
-    localStorage.setItem("vol", String(v));
-    if (master && ctx) master.gain.setTargetAtTime(v, ctx.currentTime, 0.08);
-  }
-  vol?.addEventListener("input", applyVolume);
 
   async function ensureAudio(){
     if (ctx) return;
 
     ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // try resume now; still must be triggered by gesture in some cases
+    // IMPORTANT: resume first (some browsers are picky)
     if (ctx.state === "suspended") {
-      try { await ctx.resume(); } catch {}
+      try { await ctx.resume(); } catch (e) { console.warn("Audio resume failed", e); }
     }
 
     master = ctx.createGain();
     master.gain.value = 0.0;
-    master.connect(ctx.destination);
 
+    comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -24;
+    comp.knee.value = 30;
+    comp.ratio.value = 12;
+    comp.attack.value = 0.003;
+    comp.release.value = 0.25;
+
+    // saturation -> lowpass -> compressor -> master -> destination
     sat = ctx.createWaveShaper();
-    sat.curve = makeSaturationCurve(0.85);
+    sat.curve = makeSaturationCurve(0.95);
     sat.oversample = "4x";
 
     lp = ctx.createBiquadFilter();
     lp.type = "lowpass";
-    lp.frequency.value = 1400;
-    lp.Q.value = 0.65;
+    lp.frequency.value = 1600;
+    lp.Q.value = 0.7;
 
-    // subtle “space”: low feedback, filtered loop
-    delay = ctx.createDelay(1.2);
-    delay.delayTime.value = 0.24;
-
-    fb = ctx.createGain();
-    fb.gain.value = 0.18;
-
-    fbLP = ctx.createBiquadFilter();
-    fbLP.type = "lowpass";
-    fbLP.frequency.value = 1600;
-    fbLP.Q.value = 0.6;
-
-    wet = ctx.createGain();
-    wet.gain.value = 0.22;
-
-    // Routing:
-    // drone+noise -> sat -> lp -> dry to master, and also to delay -> wet -> master
     sat.connect(lp);
-    lp.connect(master);
-    lp.connect(delay);
+    lp.connect(comp);
+    comp.connect(master);
+    master.connect(ctx.destination);
 
-    delay.connect(wet);
-    wet.connect(master);
+    // drone
+    droneA = ctx.createOscillator();
+    droneB = ctx.createOscillator();
+    droneA.type = "sine";
+    droneB.type = "sine";
 
-    // feedback: delay -> fbLP -> fb -> delay
-    delay.connect(fbLP);
-    fbLP.connect(fb);
-    fb.connect(delay);
-
-    // gains
     droneGain = ctx.createGain();
     droneGain.gain.value = 0.0;
+
+    droneA.connect(droneGain);
+    droneB.connect(droneGain);
     droneGain.connect(sat);
 
-    noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.0;
-    noiseGain.connect(sat);
+    const baseHz = 55;
+    droneA.frequency.value = baseHz;
+    droneB.frequency.value = baseHz * (1.0 + 0.0035);
 
-    // drones
-    const base = 55; // warm low register
-    oscA = ctx.createOscillator();
-    oscB = ctx.createOscillator();
-    oscC = ctx.createOscillator();
-
-    oscA.type = "sine";
-    oscB.type = "triangle";
-    oscC.type = "sine";
-
-    oscA.frequency.value = base;
-    oscB.frequency.value = base * 1.5; // fifth
-    oscC.frequency.value = base * 2.0; // octave
-
-    oscA.detune.value = -6;
-    oscB.detune.value = +4;
-    oscC.detune.value = +9;
-
-    const mixA = ctx.createGain(); mixA.gain.value = 0.55;
-    const mixB = ctx.createGain(); mixB.gain.value = 0.28;
-    const mixC = ctx.createGain(); mixC.gain.value = 0.18;
-
-    oscA.connect(mixA); mixA.connect(droneGain);
-    oscB.connect(mixB); mixB.connect(droneGain);
-    oscC.connect(mixC); mixC.connect(droneGain);
-
-    oscA.start(); oscB.start(); oscC.start();
-
-    // noise
-    noiseSrc = makeNoise(ctx);
-    noiseSrc.connect(noiseGain);
-    noiseSrc.start();
-
-    // slow movement (filter cutoff)
-    lfo = ctx.createOscillator();
-    lfo.type = "sine";
-    lfo.frequency.value = 0.03; // ~33s
-    lfoGain = ctx.createGain();
-    lfoGain.gain.value = 260;
-    lfo.connect(lfoGain);
-    lfoGain.connect(lp.frequency);
-    lfo.start();
-
-    applyVolume();
+    droneA.start();
+    droneB.start();
   }
 
-  function makeNoise(ac){
+  function makeNoiseSource(ac){
     const bufferSize = 2 * ac.sampleRate;
     const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
     const data = buffer.getChannelData(0);
@@ -251,7 +175,7 @@
     for (let i = 0; i < bufferSize; i++){
       const white = Math.random() * 2 - 1;
       last = (last + 0.02 * white) / 1.02;
-      data[i] = last * 2.6;
+      data[i] = last * 2.8;
     }
 
     const src = ac.createBufferSource();
@@ -260,36 +184,40 @@
     return src;
   }
 
-  function makeSaturationCurve(amount){
-    const n = 2048;
-    const curve = new Float32Array(n);
-    const k = 1 + amount * 18;
-    for (let i = 0; i < n; i++){
-      const x = (i * 2) / (n - 1) - 1;
-      curve[i] = (1 + k) * x / (1 + k * Math.abs(x));
-    }
-    return curve;
-  }
-
   async function startAudio(){
     await ensureAudio();
+
     if (ctx && ctx.state === "suspended") {
       try { await ctx.resume(); } catch (e) { console.warn("Audio resume failed", e); }
     }
 
+    // recreate noise each start
+    if (noiseSrc){
+      try { noiseSrc.stop(); } catch {}
+      try { noiseSrc.disconnect(); } catch {}
+      noiseSrc = null;
+    }
+    if (noiseGain){
+      try { noiseGain.disconnect(); } catch {}
+      noiseGain = null;
+    }
+
+    noiseSrc = makeNoiseSource(ctx);
+    noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.015;
+
+    noiseSrc.connect(noiseGain);
+    noiseGain.connect(sat);
+    noiseSrc.start();
+
     isOn = true;
     setIcon(true);
 
-    const now = ctx.currentTime;
     const v = clamp(Number(vol?.value ?? 0.10), 0, 1);
 
-    master.gain.cancelScheduledValues(now);
-    master.gain.setTargetAtTime(v, now, 0.12);
-
-    droneGain.gain.setTargetAtTime(0.18, now, 0.25);
-    noiseGain.gain.setTargetAtTime(0.03, now, 0.25);
-
-    beginDrift();
+    // safe fade-in
+    master.gain.setTargetAtTime(v, ctx.currentTime, 0.10);
+    droneGain.gain.setTargetAtTime(0.06, ctx.currentTime, 0.10);
   }
 
   function stopAudio(){
@@ -297,63 +225,48 @@
     isOn = false;
     setIcon(false);
 
-    const now = ctx.currentTime;
-    master.gain.setTargetAtTime(0.0, now, 0.10);
-    droneGain.gain.setTargetAtTime(0.0, now, 0.18);
-    noiseGain.gain.setTargetAtTime(0.0, now, 0.18);
+    master.gain.setTargetAtTime(0.0, ctx.currentTime, 0.10);
+    if (droneGain) droneGain.gain.setTargetAtTime(0.0, ctx.currentTime, 0.10);
 
-    if (driftTimer) {
-      clearInterval(driftTimer);
-      driftTimer = null;
+    if (noiseSrc){
+      try { noiseSrc.stop(ctx.currentTime + 0.05); } catch {}
+      try { noiseSrc.disconnect(); } catch {}
+      noiseSrc = null;
+    }
+    if (noiseGain){
+      try { noiseGain.disconnect(); } catch {}
+      noiseGain = null;
     }
   }
 
-  audioBtn?.addEventListener("click", async () => {
-    if (!isOn) await startAudio();
+  function applyVolume(){
+    const v = clamp(Number(vol?.value ?? 0.10), 0, 1);
+    localStorage.setItem("vol", String(v));
+    if (!ctx || !master) return;
+    if (isOn) master.gain.setTargetAtTime(v, ctx.currentTime, 0.10);
+  }
+
+  audioBtn?.addEventListener("click", () => {
+    if (!isOn) startAudio();
     else stopAudio();
   });
 
-  // Autostart on first gesture (scroll counts)
-  function armAutoStart(){
-    if (!armed) return;
-    armed = false;
+  vol?.addEventListener("input", applyVolume);
 
-    const kick = async () => {
-      window.removeEventListener("pointerdown", kick);
-      window.removeEventListener("keydown", kick);
-      window.removeEventListener("wheel", kick);
-      window.removeEventListener("touchstart", kick);
-      window.removeEventListener("scroll", kick);
-      if (!isOn) {
-        try { await startAudio(); } catch (e) { console.warn(e); }
-      }
-    };
-
-    window.addEventListener("pointerdown", kick, { once:true, passive:true });
-    window.addEventListener("keydown", kick, { once:true });
-    window.addEventListener("wheel", kick, { once:true, passive:true });
-    window.addEventListener("touchstart", kick, { once:true, passive:true });
-    window.addEventListener("scroll", kick, { once:true, passive:true });
-  }
-
-  // tiny drift in delay time (adds life without heavy chorus)
-  function beginDrift(){
-    if (!ctx || !delay) return;
-    if (driftTimer) return;
-
-    const t0 = performance.now();
-    driftTimer = setInterval(() => {
-      if (!isOn || !ctx) { clearInterval(driftTimer); driftTimer = null; return; }
-      const t = (performance.now() - t0) * 0.001;
-      const drift = 0.012 * Math.sin(t * 0.12) + 0.007 * Math.sin(t * 0.07);
-      delay.delayTime.setTargetAtTime(0.24 + drift, ctx.currentTime, 0.08);
-    }, 220);
-  }
-
-  // init
+  // initialize icon + volume
   setIcon(false);
   applyVolume();
-  armAutoStart();
+
+  function makeSaturationCurve(amount){
+    const n = 2048;
+    const curve = new Float32Array(n);
+    const k = 1 + amount * 20;
+    for (let i = 0; i < n; i++){
+      const x = (i * 2) / (n - 1) - 1;
+      curve[i] = (1 + k) * x / (1 + k * Math.abs(x));
+    }
+    return curve;
+  }
 
   // ========= Utilities =========
   function escapeHtml(s){
