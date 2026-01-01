@@ -33,7 +33,7 @@
       href: "works/athamal/",
       preview: "assets/video/tesseract_preview.webm",
       poster: "assets/img/thumbs/tesseract_engine.jpg"
-    }
+    },
 
     {
       title: "Tesseract_Engine",
