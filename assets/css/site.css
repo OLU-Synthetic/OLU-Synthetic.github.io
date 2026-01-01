@@ -80,9 +80,9 @@ a:hover{opacity:.95}
 
 .brandCenter{
   justify-self:center;
-  font-weight:600;
-  letter-spacing:.18em;
-  font-size: 16px;
+  font-weight:800;
+  letter-spacing:.22em;
+  font-size: 32px;
   opacity:.95;
   user-select:none;
 }
@@ -219,8 +219,8 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   display:block;
 }
 .work:hover{
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--accent) 35%, var(--line));
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
 }
 
 .workPreview{
