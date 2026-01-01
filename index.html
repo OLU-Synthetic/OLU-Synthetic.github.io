@@ -7,11 +7,10 @@
   <title>OLU — Realtime Procedural Art</title>
   <meta name="description" content="OLU — editorial, mythic, ritualistic realtime procedural art systems." />
 
-  <!-- Favicon (tab icon). Upload one of these paths. -->
+  <!-- Tab icon (favicon). Upload ONE of these to assets/img/ -->
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 
-  <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,26 +19,25 @@
 </head>
 
 <body>
-  <!-- Persistent Top Bar -->
+  <!-- Persistent fixed Top Bar -->
   <header class="topbar" id="top">
+    <!-- Left: logo mark stays -->
     <a class="brandLeft" href="#top" aria-label="Home">
-      <!-- Logo mark stays top-left -->
       <span class="brandMark" aria-hidden="true"></span>
     </a>
 
-    <!-- OLU centered -->
+    <!-- Center: perfectly centered -->
     <div class="brandCenter" aria-label="OLU">OLU</div>
 
-    <!-- Right controls: Audio icon + volume + theme -->
+    <!-- Right: audio + volume + theme -->
     <div class="topControls">
       <button class="iconBtn" id="audioBtn" type="button" aria-label="Play/Pause audio" title="Audio">
         <svg id="audioIcon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-          <!-- starts as Play -->
           <path d="M8 5v14l12-7z"></path>
         </svg>
       </button>
 
-      <input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.15" aria-label="Volume" />
+      <input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.10" aria-label="Volume" />
 
       <button class="iconBtn" id="themeBtn" type="button" aria-label="Toggle theme" title="Theme">
         <span aria-hidden="true">◐</span>
@@ -48,26 +46,22 @@
   </header>
 
   <main>
-    <!-- HERO (two muted looping videos) -->
+    <!-- HERO: two muted looping videos -->
     <section class="hero" aria-label="Featured">
-      <!-- LEFT: ATHAMAL preview video -->
       <a class="heroPane heroPane--left" href="works/athamal/" aria-label="Open ATHAMAL">
-        <video class="heroVid"
-               autoplay loop muted playsinline preload="metadata"
+        <video class="heroVid" autoplay loop muted playsinline preload="metadata"
                src="assets/video/athamal_preview.webm"></video>
 
         <div class="heroOverlay">
           <p class="kicker">EDITORIAL / MYTHIC / RITUAL / ALIEN</p>
           <h1>Realtime procedural art systems<br/>built for screen + gallery.</h1>
-          <p class="sub">Click to enter ATHAMAL (interactive runtime).</p>
+          <p class="sub">Click to open ATHAMAL (interactive runtime).</p>
           <div class="heroHint">Open toy ↗</div>
         </div>
       </a>
 
-      <!-- RIGHT: second preview (video) -->
       <a class="heroPane heroPane--right" href="works/athamal/" aria-label="Open featured work">
-        <video class="heroVid"
-               autoplay loop muted playsinline preload="metadata"
+        <video class="heroVid" autoplay loop muted playsinline preload="metadata"
                src="assets/video/tesseract_preview.webm"></video>
 
         <div class="heroOverlay heroOverlay--right">
@@ -76,17 +70,14 @@
       </a>
     </section>
 
-    <!-- WORKS -->
     <section class="section" id="works">
       <div class="sectionHead">
         <h2>Works</h2>
         <p class="muted">Click to open interactive runtimes.</p>
       </div>
-
       <div class="grid" id="worksGrid" aria-live="polite"></div>
     </section>
 
-    <!-- ABOUT -->
     <section class="section" id="about">
       <div class="sectionHead">
         <h2>About</h2>
@@ -113,7 +104,6 @@
       </div>
     </section>
 
-    <!-- CONTACT -->
     <section class="section" id="contact">
       <div class="sectionHead">
         <h2>Contact</h2>
@@ -128,9 +118,8 @@
         <div>
           <p class="muted tiny">Links</p>
           <p class="links">
-            <a href="#" target="_blank" rel="noreferrer">Instagram</a>
-            <a href="#" target="_blank" rel="noreferrer">YouTube/Vimeo</a>
-            <a href="#" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://github.com/OLU-Synthetic" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://xvrz.itch.io/" target="_blank" rel="noreferrer">Itch</a>
           </p>
         </div>
       </div>
@@ -138,7 +127,11 @@
   </main>
 
   <footer class="footer">
-    <p class="muted tiny">© <span id="year"></span> OLU. Built on GitHub Pages.</p>
+    <p class="muted tiny">
+      © <span id="year"></span> OLU ·
+      <a href="https://github.com/OLU-Synthetic" target="_blank" rel="noreferrer">GitHub</a> ·
+      <a href="https://xvrz.itch.io/" target="_blank" rel="noreferrer">Itch</a>
+    </p>
   </footer>
 
   <script src="assets/js/site.js"></script>
