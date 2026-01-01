@@ -25,24 +25,13 @@
       poster: "assets/img/thumbs/athamal.jpg"
     },
     {
-      title: "Klee_Mation",
-      year: "2026",
-      type: "tool",
-      medium: "Realtime instrument",
-      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      href: "works/athamal/",
-      preview: "assets/video/tesseract_preview.webm",
-      poster: "assets/img/thumbs/tesseract_engine.jpg"
-    },
-
-    {
       title: "Tesseract_Engine",
       year: "2026",
       type: "tool",
       medium: "Realtime instrument",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       href: "works/athamal/",
-      preview: "assets/video/tesseract_video01.webm",
+      preview: "assets/video/tesseract_preview.webm",
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     }
   ];
