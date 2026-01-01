@@ -1,1 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ATHAMAL — OLU</title>
+  <style>
+    html,body{height:100%;margin:0;background:#000;color:#fff;font-family:system-ui}
+    canvas{display:block;width:100vw;height:100vh}
+    .hud{
+      position:fixed;left:12px;top:12px;z-index:10;
+      background:rgba(0,0,0,.55);backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,.18);
+      padding:10px 12px;border-radius:14px;max-width:min(520px,calc(100vw - 24px));
+    }
+    .hud a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.35)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    button{
+      border:1px solid rgba(255,255,255,.22);
+      background:transparent;color:#fff;
+      padding:8px 10px;border-radius:999px;cursor:pointer
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="row">
+      <strong>ATHAMAL</strong>
+      <span style="opacity:.75">Realtime loop</span>
+      <span style="opacity:.75">•</span>
+      <a href="/#works">Back</a>
+      <button id="fs">Fullscreen</button>
+    </div>
+    <div style="opacity:.75;margin-top:6px;font-size:12px;">
+      Tap/click to interact. Audio (if present) may require user gesture.
+    </div>
+  </div>
+
+  <canvas id="c"></canvas>
+
+  <script>
+    // TODO: paste the actual ATHAMAL canvas/WebGL code here.
+    // Placeholder so you see *something* immediately:
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    function resize(){ canvas.width=innerWidth*devicePixelRatio; canvas.height=innerHeight*devicePixelRatio; }
+    addEventListener('resize', resize); resize();
+    let t0 = performance.now();
+    function loop(t){
+      const dt = (t - t0) * 0.001;
+      const w = canvas.width, h = canvas.height;
+      ctx.fillStyle='black'; ctx.fillRect(0,0,w,h);
+      const cx=w/2, cy=h/2;
+      for(let i=0;i<180;i++){
+        const a = i/180*Math.PI*2 + dt*0.25;
+        const r = (Math.sin(dt*0.7)+1.4)*0.22*Math.min(w,h) + i*1.6;
+        ctx.strokeStyle = `rgba(255,255,255,${0.08})`;
+        ctx.beginPath();
+        ctx.arc(cx,cy,r, a, a+Math.PI*1.2);
+        ctx.stroke();
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    document.getElementById('fs').onclick = () => {
+      const el = document.documentElement;
+      if (!document.fullscreenElement) el.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+  </script>
+</body>
+</html>
 
