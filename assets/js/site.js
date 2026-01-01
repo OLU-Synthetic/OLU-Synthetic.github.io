@@ -1,40 +1,42 @@
 (() => {
-  // ---------- Theme (default: light editorial)
+  // ========= Theme (default dark; remembers choice) =========
   const themeBtn = document.getElementById("themeBtn");
   const savedTheme = localStorage.getItem("theme");
-  const initial = savedTheme || "light";
-  document.documentElement.setAttribute("data-theme", initial);
+  const initialTheme = savedTheme || document.documentElement.getAttribute("data-theme") || "dark";
+  document.documentElement.setAttribute("data-theme", initialTheme);
 
   themeBtn?.addEventListener("click", () => {
-    const cur = document.documentElement.getAttribute("data-theme") || "light";
-    const next = cur === "light" ? "dark" : "light";
+    const cur = document.documentElement.getAttribute("data-theme") || "dark";
+    const next = cur === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem("theme", next);
   });
 
-  // ---------- Works (EDIT THESE LATER)
+  // ========= Works (links go to runtimes) =========
   const WORKS = [
     {
       title: "ATHAMAL",
       year: "2026",
       type: "loop",
-      medium: "Realtime procedural loop",
+      medium: "Realtime procedural toy",
       desc: "A ritual engine: slow geometry, signal, and breath. Editorial restraint, alien intent.",
-      thumb: "assets/img/thumbs/athamal.jpg",
-      href: "works/athamal/"
+      href: "works/athamal/",
+      preview: "assets/video/athamal_preview.webm",
+      poster: "assets/img/thumbs/athamal.jpg"
     },
     {
       title: "Tesseract_Engine",
       year: "2026",
       type: "tool",
-      medium: "Realtime system / instrument",
-      desc: "A hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      thumb: "assets/img/thumbs/tesseract_engine.jpg",
-      href: "#"
+      medium: "Realtime instrument",
+      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
+      href: "works/athamal/", // change later to works/tesseract_engine/
+      preview: "assets/video/tesseract_preview.webm",
+      poster: "assets/img/thumbs/tesseract_engine.jpg"
     }
   ];
 
-  // ---------- Render featured
+  // ========= Featured card =========
   const featuredCard = document.getElementById("featuredCard");
   if (featuredCard && WORKS[0]) {
     const w = WORKS[0];
@@ -48,24 +50,25 @@
         <span class="tag">${escapeHtml(w.type)}</span>
       </div>
       <p class="muted" style="margin:0 0 12px; line-height:1.35;">${escapeHtml(w.desc)}</p>
-      <span class="muted tiny">Add links when ready.</span>
+      <a class="btnLike" href="${w.href}">Open runtime ↗</a>
     `;
   }
 
-  // ---------- Render grid + filtering
+  // add a tiny button style without needing CSS changes
+  const style = document.createElement("style");
+  style.textContent = `
+    .btnLike{display:inline-block;border:1px solid var(--line);padding:8px 12px;border-radius:999px;text-decoration:none}
+  `;
+  document.head.appendChild(style);
+
+  // ========= Works grid (video previews; click opens runtime) =========
   const grid = document.getElementById("worksGrid");
-  const chips = [...document.querySelectorAll(".chip")];
+  if (grid) {
+    grid.innerHTML = WORKS.map(w => `
+      <a class="work" href="${w.href}">
+        <video class="workPreview" autoplay loop muted playsinline preload="metadata"
+          src="${w.preview}" poster="${w.poster || ""}"></video>
 
-  function render(filter) {
-    if (!grid) return;
-    const items = WORKS.filter(w => (filter === "all" ? true : w.type === filter));
-
-    grid.innerHTML = items.map(w => `
-      <article class="work">
-        ${w.href && w.href !== "#"
-          ? `<a href="${w.href}" target="_blank" rel="noreferrer" style="text-decoration:none;">${thumbHtml(w)}</a>`
-          : `${thumbHtml(w)}`
-        }
         <div class="workBody">
           <h3 class="workTitle">${escapeHtml(w.title)}</h3>
           <div class="workMeta">
@@ -76,88 +79,31 @@
           </div>
           <p class="workDesc">${escapeHtml(w.desc)}</p>
         </div>
-      </article>
+      </a>
     `).join("");
   }
 
-  function thumbHtml(w){
-    return `<img class="workThumb" src="${w.thumb}" alt="${escapeHtml(w.title)} thumbnail" loading="lazy" />`;
-  }
-
-  chips.forEach(btn => {
-    btn.addEventListener("click", () => {
-      chips.forEach(b => b.classList.remove("is-active"));
-      btn.classList.add("is-active");
-      render(btn.dataset.filter || "all");
-    });
-  });
-
-  render("all");
-
-  // ---------- Footer year
+  // ========= Footer year =========
   const y = document.getElementById("year");
   if (y) y.textContent = String(new Date().getFullYear());
 
-  // ============================================================
-  // Ambient Player (Procedural warm loop) — user click required
-  // ============================================================
-  const toggleBtn = document.getElementById("audioToggle");
-  const hint = document.getElementById("audioHint");
+  // ==========================================================
+  // AUDIO: Minimal icon + volume slider (procedural warm bed)
+  // ==========================================================
+  const audioBtn = document.getElementById("audioBtn");
+  const audioIcon = document.getElementById("audioIcon");
   const vol = document.getElementById("vol");
-  const warmth = document.getElementById("warmth");
-  const texture = document.getElementById("texture");
+
+  // Remember volume
+  const savedVol = localStorage.getItem("vol");
+  if (savedVol !== null && vol) vol.value = String(clamp(Number(savedVol), 0, 1));
 
   let ctx = null;
   let master = null;
-
-  let droneA = null, droneB = null;
-  let droneGain = null;
-
-  let noiseSrc = null;
-  let noiseGain = null;
-
-  let sat = null;
-  let lp = null;
-  let hs = null;
-
-  let lfo = null;
-  let lfoGain = null;
-
+  let droneA = null, droneB = null, droneGain = null;
+  let noiseSrc = null, noiseGain = null;
+  let lp = null, sat = null;
   let isOn = false;
-
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-
-  function dbToGain(db){ return Math.pow(10, db / 20); }
-
-  function makeSaturationCurve(amount){
-    const n = 2048;
-    const curve = new Float32Array(n);
-    const k = 1 + amount * 20;
-    for (let i = 0; i < n; i++){
-      const x = (i * 2) / (n - 1) - 1;
-      curve[i] = (1 + k) * x / (1 + k * Math.abs(x));
-    }
-    return curve;
-  }
-
-  function makeNoiseSource(ac){
-    const bufferSize = 2 * ac.sampleRate;
-    const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
-    const data = buffer.getChannelData(0);
-
-    // Brown-ish noise (cheap + warm)
-    let last = 0;
-    for (let i = 0; i < bufferSize; i++){
-      const white = Math.random() * 2 - 1;
-      last = (last + 0.02 * white) / 1.02;
-      data[i] = last * 3.2;
-    }
-
-    const src = ac.createBufferSource();
-    src.buffer = buffer;
-    src.loop = true;
-    return src;
-  }
 
   function ensureGraph(){
     if (ctx) return;
@@ -165,27 +111,20 @@
     ctx = new (window.AudioContext || window.webkitAudioContext)();
 
     master = ctx.createGain();
-    master.gain.value = 0.0;
+    master.gain.value = 0.0; // start silent
     master.connect(ctx.destination);
 
-    // tone chain: saturation -> lowpass -> highshelf -> master
     sat = ctx.createWaveShaper();
-    sat.curve = makeSaturationCurve(0.9);
+    sat.curve = makeSaturationCurve(0.95);
     sat.oversample = "4x";
 
     lp = ctx.createBiquadFilter();
     lp.type = "lowpass";
     lp.frequency.value = 1400;
-    lp.Q.value = 0.65;
-
-    hs = ctx.createBiquadFilter();
-    hs.type = "highshelf";
-    hs.frequency.value = 3200;
-    hs.gain.value = 0;
+    lp.Q.value = 0.7;
 
     sat.connect(lp);
-    lp.connect(hs);
-    hs.connect(master);
+    lp.connect(master);
 
     // drone
     droneA = ctx.createOscillator();
@@ -200,103 +139,74 @@
     droneB.connect(droneGain);
     droneGain.connect(sat);
 
-    // slow breath LFO affecting drone amplitude slightly
-    lfo = ctx.createOscillator();
-    lfo.type = "sine";
-    lfo.frequency.value = 0.035; // ~28s
-
-    lfoGain = ctx.createGain();
-    lfoGain.gain.value = 0.08;
-
-    lfo.connect(lfoGain);
-    lfoGain.connect(droneGain.gain);
-
-    // start always-on oscillators (we’ll mute/unmute with gains)
-    const baseHz = 55; // warm low A
+    const baseHz = 55;
     droneA.frequency.value = baseHz;
     droneB.frequency.value = baseHz * (1.0 + 0.0035);
 
     droneA.start();
     droneB.start();
-    lfo.start();
-
-    // noise sources are one-shot; created on start()
   }
 
-  function applyParams(){
-    if (!ctx || !master) return;
+  function makeNoiseSource(ac){
+    const bufferSize = 2 * ac.sampleRate;
+    const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+    const data = buffer.getChannelData(0);
 
-    const v = Number(vol?.value ?? 0.55);         // 0..1
-    const w = Number(warmth?.value ?? 0);         // -12..12
-    const t = Number(texture?.value ?? 0);        // -12..12
-
-    // Volume
-    const targetVol = clamp(v, 0, 1);
-
-    // Warmth: lower cutoff + more saturation
-    const w01 = (clamp(w, -12, 12) + 12) / 24;   // 0..1
-    const cutoff = 900 + (1 - w01) * 2600;       // ~900..3500
-    lp.frequency.setTargetAtTime(cutoff, ctx.currentTime, 0.08);
-    sat.curve = makeSaturationCurve(0.65 + w01 * 0.7);
-
-    // Texture: noise level + subtle high shelf sparkle/softness
-    const t01 = (clamp(t, -12, 12) + 12) / 24;   // 0..1
-    const noiseLevel = 0.012 + t01 * 0.055;      // ~0.012..0.067
-    if (noiseGain) noiseGain.gain.setTargetAtTime(noiseLevel, ctx.currentTime, 0.12);
-
-    const hsDb = (t01 - 0.5) * 6;                // -3..+3 dB
-    hs.gain.setTargetAtTime(hsDb, ctx.currentTime, 0.12);
-
-    // “On” mix levels (safe, not annoying)
-    if (isOn){
-      droneGain.gain.setTargetAtTime(0.08, ctx.currentTime, 0.15);
-      master.gain.setTargetAtTime(targetVol, ctx.currentTime, 0.18);
+    let last = 0;
+    for (let i = 0; i < bufferSize; i++){
+      const white = Math.random() * 2 - 1;
+      last = (last + 0.02 * white) / 1.02;
+      data[i] = last * 3.0;
     }
+
+    const src = ac.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+    return src;
   }
 
-  function setUI(on){
-    if (toggleBtn) toggleBtn.textContent = on ? "Pause" : "Play";
-  }
-
-  async function startAudio(){
+  function startAudio(){
     ensureGraph();
 
-    if (ctx.state === "suspended") await ctx.resume();
+    // must be user gesture in most browsers
+    if (ctx.state === "suspended") ctx.resume();
 
-    // create/recreate noise each start
+    // recreate noise each time
     if (noiseSrc){
       try { noiseSrc.stop(); } catch {}
-      noiseSrc.disconnect();
+      try { noiseSrc.disconnect(); } catch {}
       noiseSrc = null;
     }
+    if (noiseGain){
+      try { noiseGain.disconnect(); } catch {}
+      noiseGain = null;
+    }
+
     noiseSrc = makeNoiseSource(ctx);
     noiseGain = ctx.createGain();
     noiseGain.gain.value = 0.02;
 
     noiseSrc.connect(noiseGain);
     noiseGain.connect(sat);
-
     noiseSrc.start();
 
     isOn = true;
-    setUI(true);
-    if (hint) hint.textContent = "Running.";
+    setIcon(true);
 
-    applyParams();
+    // fade in at safe levels
+    const v = Number(vol?.value ?? 0.15);
+    master.gain.setTargetAtTime(clamp(v,0,1), ctx.currentTime, 0.12);
+    droneGain.gain.setTargetAtTime(0.08, ctx.currentTime, 0.12);
   }
 
   function stopAudio(){
     if (!ctx) return;
-
     isOn = false;
-    setUI(false);
-    if (hint) hint.textContent = "Paused.";
+    setIcon(false);
 
-    // fade out
-    master.gain.setTargetAtTime(0.0, ctx.currentTime, 0.12);
-    if (droneGain) droneGain.gain.setTargetAtTime(0.0, ctx.currentTime, 0.12);
+    master.gain.setTargetAtTime(0.0, ctx.currentTime, 0.10);
+    if (droneGain) droneGain.gain.setTargetAtTime(0.0, ctx.currentTime, 0.10);
 
-    // stop noise
     if (noiseSrc){
       try { noiseSrc.stop(ctx.currentTime + 0.05); } catch {}
       try { noiseSrc.disconnect(); } catch {}
@@ -308,18 +218,49 @@
     }
   }
 
-  toggleBtn?.addEventListener("click", () => {
+  function setIcon(on){
+    if (!audioIcon) return;
+    audioIcon.innerHTML = on
+      // pause icon
+      ? `<path d="M7 5h4v14H7zM13 5h4v14h-4z"></path>`
+      // play icon
+      : `<path d="M8 5v14l12-7z"></path>`;
+  }
+
+  function applyVolume(){
+    const v = clamp(Number(vol?.value ?? 0.15), 0, 1);
+    localStorage.setItem("vol", String(v));
+    if (!ctx || !master) return;
+    if (isOn) master.gain.setTargetAtTime(v, ctx.currentTime, 0.10);
+  }
+
+  audioBtn?.addEventListener("click", () => {
     if (!isOn) startAudio();
     else stopAudio();
   });
 
-  [vol, warmth, texture].forEach(el => el?.addEventListener("input", applyParams));
+  vol?.addEventListener("input", applyVolume);
+
+  // Keep default volume low (you asked ~15% of current)
+  applyVolume();
 
   // Helpers
+  function makeSaturationCurve(amount){
+    const n = 2048;
+    const curve = new Float32Array(n);
+    const k = 1 + amount * 20;
+    for (let i = 0; i < n; i++){
+      const x = (i * 2) / (n - 1) - 1;
+      curve[i] = (1 + k) * x / (1 + k * Math.abs(x));
+    }
+    return curve;
+  }
+
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, c => ({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
     }[c]));
   }
-})();
 
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+})();
