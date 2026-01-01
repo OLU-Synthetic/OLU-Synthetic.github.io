@@ -21,7 +21,7 @@
       medium: "Realtime procedural loop",
       desc: "A ritual engine: slow geometry, signal, and breath. Editorial restraint, alien intent.",
       thumb: "assets/img/thumbs/athamal.jpg",
-      href: "#"
+      href: "works/athamal/"
     },
     {
       title: "Tesseract_Engine",
