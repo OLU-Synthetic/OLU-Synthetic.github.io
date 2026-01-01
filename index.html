@@ -3,27 +3,429 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
   <title>OLU — Works</title>
+  <meta name="description" content="Interactive works by OLU. WebGL loops, procedural studies, audio-reactive experiments." />
+
   <style>
-    body{margin:0;font-family:system-ui;background:#0b0b0d;color:#eaeaf0}
-    main{max-width:980px;margin:0 auto;padding:28px 18px}
-    h1{margin:0 0 14px;font-size:44px}
-    .card{border:1px solid rgba(255,255,255,.12);border-radius:16px;
-      padding:16px 18px;margin:14px 0;background:rgba(255,255,255,.03)}
-    a{color:#eaeaf0}
-    .meta{opacity:.7;margin:6px 0 0;font-size:13px}
+    :root{
+      --bg: #0b0b0d;
+      --panel: rgba(255,255,255,.05);
+      --panel2: rgba(255,255,255,.03);
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.62);
+      --muted2: rgba(255,255,255,.45);
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --r: 18px;
+      --r2: 14px;
+      --focus: rgba(160, 210, 255, .75);
+      --max: 1120px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(255,255,255,.08), transparent 60%),
+        radial-gradient(900px 600px at 90% 10%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(700px 700px at 50% 110%, rgba(255,255,255,.05), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      letter-spacing: .2px;
+    }
+
+    a{color:inherit; text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:var(--max); margin:0 auto; padding: 28px 18px 54px}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom: 18px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 220px;
+    }
+    .mark{
+      width:36px; height:36px; border-radius:12px;
+      background:
+        radial-gradient(18px 18px at 35% 35%, rgba(255,255,255,.38), transparent 60%),
+        radial-gradient(26px 26px at 70% 75%, rgba(255,255,255,.22), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.02));
+      border: 1px solid var(--stroke);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .brand h1{
+      margin:0;
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      opacity: .95;
+    }
+    .brand .sub{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    .hero{
+      border: 1px solid var(--stroke);
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      padding: 26px 22px;
+      margin-bottom: 18px;
+      overflow:hidden;
+      position:relative;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(800px 500px at 20% 0%, rgba(255,255,255,.08), transparent 55%),
+        radial-gradient(900px 600px at 90% 40%, rgba(255,255,255,.06), transparent 55%);
+      pointer-events:none;
+      opacity:.8;
+    }
+    .hero > *{position:relative}
+    .heroTitle{
+      margin:0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -0.6px;
+    }
+    .heroP{
+      margin:0 0 16px;
+      color: var(--muted);
+      max-width: 78ch;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .controls{
+      display:flex; flex-wrap:wrap; gap:10px;
+      align-items:center;
+      margin-top: 8px;
+    }
+    .field, .select, .btn{
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      outline:none;
+    }
+    .field{
+      min-width: 240px;
+      flex: 1 1 260px;
+    }
+    .select{flex: 0 0 auto}
+    .btn{
+      cursor:pointer;
+      background: rgba(255,255,255,.06);
+      transition: transform .08s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{background: rgba(255,255,255,.09)}
+    .btn:active{transform: translateY(1px)}
+    .pillRow{display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px}
+    .pill{
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .card{
+      grid-column: span 6;
+      border: 1px solid var(--stroke);
+      border-radius: var(--r);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      overflow:hidden;
+      box-shadow: 0 14px 40px rgba(0,0,0,.38);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+      position:relative;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.20);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+    }
+    .thumb{
+      aspect-ratio: 16/10;
+      background:
+        radial-gradient(120px 120px at 30% 30%, rgba(255,255,255,.10), transparent 60%),
+        radial-gradient(160px 160px at 70% 70%, rgba(255,255,255,.08), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex; align-items:center; justify-content:center;
+      color: rgba(255,255,255,.35);
+      font-size: 12px;
+      overflow:hidden;
+    }
+    .thumb img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.05) contrast(1.04);
+      transform: scale(1.01);
+    }
+    .content{padding: 14px 14px 16px}
+    .title{
+      margin:0 0 6px;
+      font-weight: 780;
+      font-size: 16px;
+      letter-spacing: -0.2px;
+    }
+    .desc{
+      margin:0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      min-height: 36px;
+    }
+    .tags{display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 12px}
+    .tag{
+      font-size: 12px;
+      color: rgba(255,255,255,.70);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      padding: 5px 9px;
+    }
+    .actions{display:flex; gap:10px; align-items:center; justify-content:space-between}
+    .open{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 9px 11px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.14);
+      font-size: 13px;
+      font-weight: 650;
+      cursor:pointer;
+      text-decoration:none !important;
+    }
+    .open:hover{background: rgba(255,255,255,.10)}
+    .metaSmall{font-size:12px;color:var(--muted2)}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-bottom-color: rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      border-radius: 8px;
+      padding: 3px 7px;
+      color: rgba(255,255,255,.75);
+    }
+
+    footer{
+      margin-top: 18px;
+      color: var(--muted2);
+      font-size: 12px;
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between;
+      padding: 10px 2px 0;
+    }
+
+    :focus-visible{
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 980px){
+      .card{grid-column: span 12;}
+      .brand{min-width:unset}
+    }
   </style>
 </head>
-<body>
-<main>
-  <h1>Works</h1>
 
-  <div class="card">
-    <div style="font-size:24px;font-weight:700">Math Manal</div>
-    <div class="meta">WebGL loop</div>
-    <p><a href="works/math_manal_gallery_loop_v7_exportfix.html" target="_blank" rel="noopener">Open</a></p>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <h1>OLU</h1>
+          <p class="sub">Interactive works • WebGL • Procedural studies</p>
+        </div>
+      </div>
+      <a class="btn" href="https://github.com/OLU-Synthetic" target="_blank" rel="noopener" title="GitHub profile">GitHub</a>
+    </div>
+
+    <section class="hero">
+      <h2 class="heroTitle">Works</h2>
+      <p class="heroP">
+        A small catalogue of interactive pieces. Click a work to open it. Use search + sort to navigate.
+        <span style="opacity:.8">Tip: press <span class="kbd">/</span> to focus search.</span>
+      </p>
+
+      <div class="controls">
+        <input id="q" class="field" type="search" placeholder="Search works (title, tags, description)…" autocomplete="off" />
+        <select id="sort" class="select" aria-label="Sort">
+          <option value="new">Sort: newest</option>
+          <option value="title">Sort: title</option>
+          <option value="tagcount">Sort: most tags</option>
+        </select>
+        <button id="reset" class="btn" type="button">Reset</button>
+      </div>
+
+      <div class="pillRow" id="stats"></div>
+    </section>
+
+    <div class="grid" id="grid" aria-live="polite"></div>
+
+    <footer>
+      <div>© <span id="year"></span> OLU</div>
+      <div>Built on GitHub Pages • Static, fast, boring (good).</div>
+    </footer>
   </div>
 
-</main>
+  <script>
+    // EDIT THIS LIST. Add your works here.
+    // - file: path from repo root (e.g. "works/thing.html")
+    // - thumb: optional image path (e.g. "thumbs/thing.jpg")
+    // - date: ISO string used for "newest" sort
+    const works = [
+      {
+        title: "Math Manal",
+        file: "works/math_manal_gallery_loop_v7_exportfix.html",
+        desc: "Procedural loop study with gallery UI + export tooling.",
+        tags: ["webgl", "loop", "procedural", "interactive"],
+        date: "2026-01-01",
+        thumb: "" // e.g. "thumbs/math_manal.jpg"
+      },
+      // Example for adding more:
+      // {
+      //   title: "Hyper Tile Study",
+      //   file: "works/hyper_tile.html",
+      //   desc: "Hyperbolic tiling experiment.",
+      //   tags: ["webgl", "math"],
+      //   date: "2026-01-02",
+      //   thumb: "thumbs/hyper_tile.jpg"
+      // }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const grid = $("grid");
+    const q = $("q");
+    const sort = $("sort");
+    const reset = $("reset");
+    const stats = $("stats");
+
+    const norm = (s) => (s || "").toLowerCase().trim();
+    const join = (w) => [w.title, w.desc, (w.tags||[]).join(" ")].map(norm).join(" ");
+
+    function sortWorks(list){
+      const v = sort.value;
+      const arr = list.slice();
+      if(v === "title"){
+        arr.sort((a,b) => a.title.localeCompare(b.title));
+      }else if(v === "tagcount"){
+        arr.sort((a,b) => ((b.tags?.length||0) - (a.tags?.length||0)) || a.title.localeCompare(b.title));
+      }else{
+        arr.sort((a,b) => (new Date(b.date) - new Date(a.date)) || a.title.localeCompare(b.title));
+      }
+      return arr;
+    }
+
+    function render(){
+      const term = norm(q.value);
+      let list = works.filter(w => join(w).includes(term));
+      list = sortWorks(list);
+
+      grid.innerHTML = list.map((w, idx) => {
+        const tagHtml = (w.tags||[]).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+        const thumb = w.thumb
+          ? `<img src="${escapeAttr(w.thumb)}" alt="${escapeAttr(w.title)} thumbnail" loading="lazy" />`
+          : `<div>thumbnail</div>`;
+        return `
+          <article class="card" tabindex="0" data-open="${escapeAttr(w.file)}" aria-label="${escapeAttr(w.title)}">
+            <div class="thumb">${thumb}</div>
+            <div class="content">
+              <h3 class="title">${escapeHtml(w.title)}</h3>
+              <p class="desc">${escapeHtml(w.desc || "")}</p>
+              <div class="tags">${tagHtml}</div>
+              <div class="actions">
+                <a class="open" href="${escapeAttr(w.file)}" target="_blank" rel="noopener">Open <span style="opacity:.65">↗</span></a>
+                <div class="metaSmall">${escapeHtml(prettyDate(w.date))}</div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      const total = works.length;
+      const shown = list.length;
+      const tags = new Set();
+      works.forEach(w => (w.tags||[]).forEach(t => tags.add(t)));
+      stats.innerHTML = `
+        <span class="pill">${shown} shown</span>
+        <span class="pill">${total} total</span>
+        <span class="pill">${tags.size} tags</span>
+      `;
+
+      // click anywhere on a card to open (except links)
+      [...grid.querySelectorAll(".card")].forEach(card => {
+        card.addEventListener("click", (e) => {
+          if(e.target && (e.target.tagName === "A" || e.target.closest("a"))) return;
+          const href = card.getAttribute("data-open");
+          if(href) window.open(href, "_blank", "noopener");
+        });
+        card.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            const href = card.getAttribute("data-open");
+            if(href) window.open(href, "_blank", "noopener");
+          }
+        });
+      });
+    }
+
+    function prettyDate(iso){
+      if(!iso) return "";
+      const d = new Date(iso);
+      if(Number.isNaN(+d)) return iso;
+      return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"2-digit" });
+    }
+
+    function escapeHtml(s){
+      return (s ?? "").toString()
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){ return escapeHtml(s).replaceAll("`","&#096;"); }
+
+    q.addEventListener("input", render);
+    sort.addEventListener("change", render);
+    reset.addEventListener("click", () => { q.value=""; sort.value="new"; render(); q.focus(); });
+
+    // Keyboard shortcut: "/" focuses search (like GitHub)
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "/" && document.activeElement !== q){
+        e.preventDefault();
+        q.focus();
+      }
+      if(e.key === "Escape" && document.activeElement === q){
+        q.blur();
+      }
+    });
+
+    $("year").textContent = new Date().getFullYear();
+    render();
+  </script>
 </body>
 </html>
