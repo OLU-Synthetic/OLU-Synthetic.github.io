@@ -1,13 +1,17 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
   <title>OLU — Realtime Procedural Art</title>
-  <meta name="description" content="OLU — editorial, mythic, ritualistic realtime procedural art." />
+  <meta name="description" content="OLU — editorial, mythic, ritualistic realtime procedural art systems." />
 
-  <!-- Font (editorial, modern). You can switch to Unbounded or Syne later. -->
+  <!-- Favicon (tab icon). Upload one of these paths. -->
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+  <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,61 +20,67 @@
 </head>
 
 <body>
+  <!-- Persistent Top Bar -->
   <header class="topbar" id="top">
-    <a class="brand" href="#top" aria-label="Home">
+    <a class="brandLeft" href="#top" aria-label="Home">
+      <!-- Logo mark stays top-left -->
       <span class="brandMark" aria-hidden="true"></span>
-      <span class="brandText">OLU</span>
     </a>
 
-    <nav class="nav">
-      <a href="#works">Works</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </nav>
+    <!-- OLU centered -->
+    <div class="brandCenter" aria-label="OLU">OLU</div>
 
-    <button class="themeBtn" id="themeBtn" type="button" aria-label="Toggle theme">
-      ◐
-    </button>
+    <!-- Right controls: Audio icon + volume + theme -->
+    <div class="topControls">
+      <button class="iconBtn" id="audioBtn" type="button" aria-label="Play/Pause audio" title="Audio">
+        <svg id="audioIcon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <!-- starts as Play -->
+          <path d="M8 5v14l12-7z"></path>
+        </svg>
+      </button>
+
+      <input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.15" aria-label="Volume" />
+
+      <button class="iconBtn" id="themeBtn" type="button" aria-label="Toggle theme" title="Theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+    </div>
   </header>
 
   <main>
-    <!-- HERO -->
+    <!-- HERO (two muted looping videos) -->
     <section class="hero" aria-label="Featured">
-      <div class="heroPane heroPane--left">
-        <img class="heroImg" src="assets/img/hero-left.jpg" alt="OLU — realtime procedural still" />
+      <!-- LEFT: ATHAMAL preview video -->
+      <a class="heroPane heroPane--left" href="works/athamal/" aria-label="Open ATHAMAL">
+        <video class="heroVid"
+               autoplay loop muted playsinline preload="metadata"
+               src="assets/video/athamal_preview.webm"></video>
+
         <div class="heroOverlay">
           <p class="kicker">EDITORIAL / MYTHIC / RITUAL / ALIEN</p>
           <h1>Realtime procedural art systems<br/>built for screen + gallery.</h1>
-          <p class="sub">
-            OLU builds living loops and instruments — minimal interface, maximum presence.
-          </p>
-
-          <div class="heroActions">
-            <a class="btn" href="#works">Enter Works</a>
-            <a class="btn btn--ghost" href="#about">Statement</a>
-          </div>
+          <p class="sub">Click to enter ATHAMAL (interactive runtime).</p>
+          <div class="heroHint">Open toy ↗</div>
         </div>
-      </div>
+      </a>
 
-      <div class="heroPane heroPane--right">
-        <img class="heroImg" src="assets/img/hero-right.jpg" alt="OLU — procedural form detail" />
+      <!-- RIGHT: second preview (video) -->
+      <a class="heroPane heroPane--right" href="works/athamal/" aria-label="Open featured work">
+        <video class="heroVid"
+               autoplay loop muted playsinline preload="metadata"
+               src="assets/video/tesseract_preview.webm"></video>
+
         <div class="heroOverlay heroOverlay--right">
           <div class="featuredCard" id="featuredCard"></div>
         </div>
-      </div>
+      </a>
     </section>
 
     <!-- WORKS -->
     <section class="section" id="works">
       <div class="sectionHead">
         <h2>Works</h2>
-        <p class="muted">Selected realtime pieces and instruments.</p>
-      </div>
-
-      <div class="filters">
-        <button class="chip is-active" type="button" data-filter="all">All</button>
-        <button class="chip" type="button" data-filter="loop">Loops</button>
-        <button class="chip" type="button" data-filter="tool">Tools</button>
+        <p class="muted">Click to open interactive runtimes.</p>
       </div>
 
       <div class="grid" id="worksGrid" aria-live="polite"></div>
@@ -97,9 +107,8 @@
           <ul class="list">
             <li>Realtime / procedural visuals</li>
             <li>Seamless loops for screen + installation</li>
-            <li>Tools and instruments</li>
+            <li>Interactive instruments</li>
           </ul>
-          <p class="muted tiny">Tech: WebGL / Unity / shaders / generative pipelines.</p>
         </div>
       </div>
     </section>
@@ -127,34 +136,6 @@
       </div>
     </section>
   </main>
-
-  <!-- AMBIENT PLAYER (procedural; click-to-start required by browsers) -->
-  <aside class="player" aria-label="Ambient audio">
-    <div class="playerRow">
-      <button class="playerBtn" id="audioToggle" type="button">Play</button>
-      <div class="playerMeta">
-        <div class="playerTitle">Ambient System</div>
-        <div class="playerHint" id="audioHint">Tap Play to awaken the loop.</div>
-      </div>
-    </div>
-
-    <div class="playerControls">
-      <label class="ctrl">
-        <span>Volume</span>
-        <input id="vol" type="range" min="0" max="1" step="0.01" value="0.55" />
-      </label>
-
-      <label class="ctrl">
-        <span>Warmth</span>
-        <input id="warmth" type="range" min="-12" max="12" step="0.1" value="3" />
-      </label>
-
-      <label class="ctrl">
-        <span>Texture</span>
-        <input id="texture" type="range" min="-12" max="12" step="0.1" value="2" />
-      </label>
-    </div>
-  </aside>
 
   <footer class="footer">
     <p class="muted tiny">© <span id="year"></span> OLU. Built on GitHub Pages.</p>
