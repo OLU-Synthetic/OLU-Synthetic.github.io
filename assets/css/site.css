@@ -80,9 +80,9 @@ a:hover{opacity:.95}
 
 .brandCenter{
   justify-self:center;
-  font-weight:800;
-  letter-spacing:.22em;
-  font-size: 32px;
+  font-weight:600;
+  letter-spacing:.20em;
+  font-size: 24px;
   opacity:.95;
   user-select:none;
 }
