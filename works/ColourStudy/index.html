@@ -32,6 +32,10 @@
     .toast{position:fixed;left:14px;bottom:14px;padding:10px 12px;border:1px solid rgba(233,237,242,.16);background:rgba(8,10,12,.72);color:rgba(233,237,242,.78);border-radius:14px;box-shadow:var(--shadow);letter-spacing:.04em;font-size:12px;z-index:20;opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;user-select:none;pointer-events:none}
     .toast.show{opacity:1;transform:translateY(0)}
     *{-webkit-tap-highlight-color:transparent}
+  
+    /* Kiosk: hide cursor */
+    body.kioskMode, body.kioskMode * { cursor: none !important; }
+
   </style>
 </head>
 <body>
@@ -488,6 +492,10 @@
     hud.classList.add("hidden");
   }
 
+  function setKioskCursor(on){
+    document.body.classList.toggle("kioskMode", !!on);
+  }
+
   // ===== Draw loop =====
   function drawFrame(idx){
     const entry = PALETTE[idx];
@@ -570,6 +578,9 @@
       kioskLabel.classList.add("hidden");
       hud.classList.add("hidden");
       controls.classList.add("hidden");
+      setKioskCursor(true);
+      // Kiosk presentation: request fullscreen on the same user gesture stack (also triggered in click handler)
+
       // === KIOSK DEFAULTS (edit here if you want) ===
       // preset = 0;        // TWITCH: 0
       // strictMode = "fit"; // Strict: FIT
@@ -581,6 +592,7 @@
       lastIdx = -1;
       await setAudio(AUDIO_DEFAULT_KIOSK); // force silent
     } else {
+      setKioskCursor(false);
       kioskLabel.classList.remove("hidden");
       setStudioUIVisible(true);
       await setAudio(AUDIO_DEFAULT_STUDIO);
@@ -590,6 +602,8 @@
   }
 
   function stopToGate(){
+    setKioskCursor(false);
+    setKioskCursor(false);
     started = false;
     recording = false;
     gate.classList.remove("hidden");
@@ -733,7 +747,14 @@
   }
 
   // ===== Bind =====
-  beginKiosk.addEventListener("click", () => start("kiosk"));
+  beginKiosk.addEventListener("click", () => {
+    // Fullscreen must be requested directly from a user gesture in many browsers.
+    setKioskCursor(true);
+    goFullscreen();
+    setKioskCursor(true);
+    goFullscreen();
+    start("kiosk");
+  });
   beginStudio.addEventListener("click", () => start("studio"));
   fsGate.addEventListener("click", goFullscreen);
   closeRunbook.addEventListener("click", () => toggleRunbook(false));
@@ -767,6 +788,8 @@
   gate.addEventListener("pointerdown", (e) => {
     const t = e.target;
     if (t && t.tagName === "BUTTON") return;
+    setKioskCursor(true);
+    goFullscreen();
     start("kiosk");
   });
 
