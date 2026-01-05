@@ -40,6 +40,15 @@
       type: "hyperobject",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       preview: "assets/video/tesseract_video01.webm"
+    },
+    {
+      title: "OLU // STUDY_01: CHROMA",
+      year: "2026",
+      type: "loop",
+      medium: "Realtime instrument",
+      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
+      href: "works/ColourStudy/",
+      preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"  
     }
  
   ];
