@@ -41,12 +41,7 @@
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       preview: "assets/video/tesseract_video01.webm"
     },
-    {
-      title: "OLU // STUDY_01: CHROMA",
-      year: "2026",
-      type: "realtime art", "loop",
-      preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"
-    }
+ 
   ];
 
   // ========= Featured card =========
