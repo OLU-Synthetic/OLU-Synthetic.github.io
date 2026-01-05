@@ -40,7 +40,7 @@
       type: "hyperobject",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       preview: "assets/video/tesseract_video01.webm"
-    },
+    }
  
   ];
 
