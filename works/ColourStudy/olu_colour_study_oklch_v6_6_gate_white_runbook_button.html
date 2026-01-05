@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <title>OLU — Colour Study (OKLCH)</title>
+  <style>
+    :root{--bg:#050607;--fg:#e9edf2;--muted:rgba(233,237,242,.68);--panel:rgba(8,10,12,.78);--panel2:rgba(8,10,12,.92);--line:rgba(233,237,242,.18);--shadow:0 10px 40px rgba(0,0,0,.45);--radius:16px}
+    html,body{height:100%;margin:0;background:var(--bg);overflow:hidden}
+    body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    canvas#c{display:block;width:100vw;height:100vh}
+    .overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(1200px 1200px at 50% 40%,rgba(255,255,255,.06),rgba(0,0,0,.92));backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:var(--fg);user-select:none;z-index:50}
+    .card{width:min(900px,calc(100vw - 36px));border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 16px}
+    .title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:var(--muted);margin-bottom:10px}
+    .big{font-size:18px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg);margin:10px 0 12px;line-height:1.25}
+    .desc{font-size:13px;line-height:1.5;color:var(--muted);margin:0 0 14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--fg);padding:10px 12px;border-radius:12px;font-weight:950;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+    button:hover{border-color:rgba(233,237,242,.35)}
+    button:active{transform:translateY(1px)}
+    button:disabled{opacity:.6;cursor:default}
+    .pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px;letter-spacing:.04em;background:rgba(8,10,12,.55)}
+    .tiny{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(233,237,242,.55)}
+    .hidden{display:none!important}
+    .hud{position:fixed;left:14px;top:12px;display:flex;gap:10px;align-items:center;color:rgba(233,237,242,.68);letter-spacing:.12em;font-size:11px;text-transform:uppercase;user-select:none;pointer-events:none;opacity:.92;text-shadow:0 2px 12px rgba(0,0,0,.35);z-index:10}
+    .hud strong{color:rgba(233,237,242,.92);font-weight:980;letter-spacing:.16em}
+    .kioskLabel{position: fixed;left: 14px; top: 12px;color: rgba(233,237,242,0.30);letter-spacing: .18em;font-size: 11px;text-transform: uppercase;font-weight: 520;user-select:none;pointer-events:none;z-index: 10;text-shadow: 0 2px 18px rgba(0,0,0,.55);}
+    .controls{position:fixed;right:14px;top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;z-index:12}
+    .controls button{padding:9px 10px;border-radius:12px;font-size:11px;letter-spacing:.10em;font-weight:980;opacity:.94;white-space:nowrap}
+    .controls .toggleOff{color:rgba(233,237,242,.55);border-color:rgba(233,237,242,.14)}
+    .toast{position:fixed;left:14px;bottom:14px;padding:10px 12px;border:1px solid rgba(233,237,242,.16);background:rgba(8,10,12,.72);color:rgba(233,237,242,.78);border-radius:14px;box-shadow:var(--shadow);letter-spacing:.04em;font-size:12px;z-index:20;opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;user-select:none;pointer-events:none}
+    .toast.show{opacity:1;transform:translateY(0)}
+    *{-webkit-tap-highlight-color:transparent}
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <div class="kioskLabel hidden" id="kioskLabel">OLU // STUDY_01: CHROMA</div>
+
+  <div class="hud hidden" id="hud">
+    <strong id="hudTitle">OLU // STUDY_01: CHROMA</strong>
+    <span class="pill" id="hudMeta">—</span>
+  </div>
+
+  <div class="controls hidden" id="controls">
+    <button id="audioBtn">Audio: ON</button>
+    <button id="presetBtn">Twitch: 0</button>
+    <button id="strictBtn">Strict: FIT</button>
+    <button id="hideBtn">Hide (H)</button>
+    <button id="runbookBtn">Runbook (?)</button>
+    <button id="recordBtn">Record cycle</button>
+    <button id="shotBtn">Screenshot</button>
+    <button id="fsBtn">Fullscreen</button>
+  </div>
+
+  <div class="toast" id="toast">—</div>
+
+  <div class="overlay" id="gate">
+    <div class="card">
+      <div class="title">
+        <span>OLU_SYNTHETIC</span>
+        <span id="meta">STUDY_01</span>
+      </div>
+      <div class="big">OLU // STUDY_01: CHROMA<br/><span style="font-size:12px; letter-spacing:.18em; opacity:.78">OKLCH / COMPLEMENT PAIRS / 16 FRAMES / 64s</span></div>
+      
+      <p class="desc">
+        A single-file installation object: 16 OKLCH complement pairs, hard-cut at 4-second intervals (64s seamless loop).<br/>
+        Concentric quadrilaterals tighten toward a square; variation stays inside one hue family per frame.<br/><br/>
+        <b>Runs offline. No install.</b> Kiosk mode + operator shortcuts. Tech rider + runbook included (<b>?</b>).<br/>
+        Tested: <b>Chrome 143.0.7499.169</b>. Fallbacks: Kiosk (silent) · Audio OFF · Strict FIT · Twitch 1.
+      </p>
+
+      <div class="row">
+        <button id="beginKiosk">Begin (Kiosk · Silent · Recommended)</button>
+        <button id="beginStudio">Begin (Studio)</button>
+        <button id="fsGate">Fullscreen</button>
+        <button id="runbookGateBtn">Runbook (?)</button>
+        <span class="pill">ESC: gate</span>
+        <span class="pill">F: fullscreen</span>
+        <span class="pill">H: hide UI</span>
+      </div>
+      <div class="tiny" style="margin-top:10px">
+        Studio audio: 1 hit / 2s. Kiosk: audio forced OFF.
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="runbook">
+    <div class="card" style="max-height: calc(100vh - 64px); overflow:auto;">
+      <div class="title">
+        <span>TECH RIDER + RUNBOOK</span>
+        <span class="pill">Press ? to close</span>
+      </div>
+      <div class="big" style="margin-top:6px">OLU // STUDY_01: CHROMA</div>
+      <p class="desc" style="margin-bottom:10px">
+        Single-file installation object. Runs offline. No install. Hard-cut colour loop.
+      </p>
+
+      <div class="row" style="margin-bottom:10px">
+        <span class="pill">Loop: 16 frames × 4s = 64s</span>
+        <span class="pill">Studio hit: 1 / 2s</span>
+        <span class="pill">Kiosk: silent</span>
+      </div>
+
+      <div class="tiny" style="margin:14px 0 6px">QUICK START</div>
+      <p class="desc">
+        1) Open the HTML file in <b>Chrome</b> (recommended).<br/>
+        2) Click <b>Begin (Kiosk)</b> for presentation, or <b>Begin (Studio)</b> for operator tools.<br/>
+        3) Optional: press <b>F</b> for fullscreen.
+      </p>
+
+      <div class="tiny" style="margin:14px 0 6px">MODES</div>
+      <p class="desc">
+        <b>Kiosk</b>: presentation-only, silent, no on-screen UI.<br/>
+        <b>Studio</b>: optional metronome, screenshot + perfect-loop WebM recording, operator shortcuts.
+      </p>
+
+      <div class="tiny" style="margin:14px 0 6px">OPERATOR SHORTCUTS (STUDIO)</div>
+      <p class="desc">
+        <b>F</b> fullscreen · <b>H</b> hide/show UI · <b>S</b> screenshot · <b>R</b> record 64s cycle · <b>0/1</b> twitch presets · <b>ESC</b> return to gate · <b>?</b> runbook
+      </p>
+
+      <div class="tiny" style="margin:14px 0 6px">AUDIO POLICY</div>
+      <p class="desc">
+        Audio is <b>metronomic</b> (no flourish) and <b>beat-locked</b> to the 64s loop in Studio.<br/>
+        Kiosk mode forces audio <b>OFF</b>.
+      </p>
+
+      <div class="tiny" style="margin:14px 0 6px">FALLBACKS (IF SOMETHING FAILS)</div>
+      <p class="desc">
+        If audio / recording / GPU performance is unstable: use <b>Kiosk</b> (silent), toggle <b>Audio OFF</b>, keep <b>Strict: FIT</b>, and/or switch to <b>Twitch 1</b> for reduced drift.
+      </p>
+
+      <div class="tiny" style="margin:14px 0 6px">RECORDING NOTES</div>
+      <p class="desc">
+        Recording outputs <b>.webm</b>. If recording fails: use Chrome desktop; some mobile browsers limit MediaRecorder.
+        Recording includes audio only when Studio audio is ON.
+      </p>
+
+      <div class="tiny" style="margin:14px 0 6px">BROWSER / COMPATIBILITY</div>
+      <p class="desc">
+        Recommended: <b>Chrome</b> (desktop). Uses Canvas2D + WebAudio + MediaRecorder.<br/>
+        Tested: <b>Chrome 143.0.7499.169</b>.
+      </p>
+
+      <div class="row" style="margin-top:12px">
+        <button id="closeRunbook">Close</button>
+      </div>
+      <div class="tiny" style="margin-top:10px">Note: This runbook is embedded to keep the work single-file.</div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ===== State (declare early) =====
+  let started = false;
+  let mode = "studio";
+  let lastIdx = -1;
+  let studioUIVisible = true;
+  let recording = false;
+
+  // Audio defaults per mode
+  const AUDIO_DEFAULT_STUDIO = true;
+  const AUDIO_DEFAULT_KIOSK  = false;
+
+  // Twitch preset (studio only)
+  // 0 = default
+  // 1 = reduced internal L/C drift + reduced chroma range
+  let preset = 0;
+
+  // ===== DOM =====
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+
+  const gate = document.getElementById("gate");
+  const beginKiosk = document.getElementById("beginKiosk");
+  const beginStudio = document.getElementById("beginStudio");
+  const fsGate = document.getElementById("fsGate");
+
+  const hud = document.getElementById("hud");
+  const hudMeta = document.getElementById("hudMeta");
+  const kioskLabel = document.getElementById("kioskLabel");
+
+  const controls = document.getElementById("controls");
+  const audioBtn = document.getElementById("audioBtn");
+  const presetBtn = document.getElementById("presetBtn");
+  const strictBtn = document.getElementById("strictBtn");
+  const hideBtn = document.getElementById("hideBtn");
+  const recordBtn = document.getElementById("recordBtn");
+  const shotBtn = document.getElementById("shotBtn");
+  const fsBtn = document.getElementById("fsBtn");
+
+  const toastEl = document.getElementById("toast");
+
+  // Runbook
+  const runbook = document.getElementById("runbook");
+  const closeRunbook = document.getElementById("closeRunbook");
+  const runbookBtn = document.getElementById("runbookBtn");
+  const runbookGateBtn = document.getElementById("runbookGateBtn");
+
+  window.addEventListener("contextmenu", e => e.preventDefault(), {passive:false});
+  window.addEventListener("selectstart", e => e.preventDefault(), {passive:false});
+
+  // ===== Timing =====
+  const FRAME_SECONDS = 4.0;
+  const BEAT_SECONDS  = 2.0;
+  const FPS = 60;
+
+  // ===== Geometry =====
+  const QUADS = 12;
+  const TARGET_INNER = 0.050; // inner square side = 5% of min(screenW,screenH)
+
+  // ===== Helpers =====
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  // ===== Resize =====
+  function resize(){
+    const dpr = Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+    const w = Math.floor(window.innerWidth * dpr);
+    const h = Math.floor(window.innerHeight * dpr);
+    if (canvas.width !== w || canvas.height !== h){
+      canvas.width = w; canvas.height = h;
+      ctx.setTransform(1,0,0,1,0,0);
+      lastIdx = -1;
+    }
+  }
+  window.addEventListener("resize", resize, {passive:true});
+  resize();
+
+  // ===== OKLCH -> sRGB =====
+  function srgbCompand(u){
+    return (u <= 0.0031308) ? 12.92*u : 1.055*Math.pow(u, 1/2.4) - 0.055;
+  }
+  function oklab_to_linear_srgb(L, a, b){
+    const l_ = L + 0.3963377774*a + 0.2158037573*b;
+    const m_ = L - 0.1055613458*a - 0.0638541728*b;
+    const s_ = L - 0.0894841775*a - 1.2914855480*b;
+    const l = l_*l_*l_;
+    const m = m_*m_*m_;
+    const s = s_*s_*s_;
+    const r = +4.0767416621*l - 3.3077115913*m + 0.2309699292*s;
+    const g = -1.2684380046*l + 2.6097574011*m - 0.3413193965*s;
+    const bb= -0.0041960863*l - 0.7034186147*m + 1.7076147010*s;
+    return [r,g,bb];
+  }
+  function oklch_to_rgb_unclamped(L, C, hDeg){
+    const h = (hDeg * Math.PI) / 180;
+    const a = C * Math.cos(h);
+    const b = C * Math.sin(h);
+    const [rLin, gLin, bLin] = oklab_to_linear_srgb(L, a, b);
+    return [srgbCompand(rLin), srgbCompand(gLin), srgbCompand(bLin)];
+  }
+  function inGamut(rgb){
+    return rgb[0] >= 0 && rgb[0] <= 1 &&
+           rgb[1] >= 0 && rgb[1] <= 1 &&
+           rgb[2] >= 0 && rgb[2] <= 1;
+  }
+  function fitChroma(L, C, h){
+    let c = C;
+    for (let i=0;i<28;i++){
+      const rgb = oklch_to_rgb_unclamped(L, c, h);
+      if (inGamut(rgb)) return {C:c, rgb};
+      c *= 0.92;
+    }
+    const rgb = oklch_to_rgb_unclamped(L, c, h).map(v => clamp(v,0,1));
+    return {C:c, rgb};
+  }
+  function rgbString(rgb){
+    const r = Math.round(clamp(rgb[0],0,1)*255);
+    const g = Math.round(clamp(rgb[1],0,1)*255);
+    const b = Math.round(clamp(rgb[2],0,1)*255);
+    return `rgb(${r} ${g} ${b})`;
+  }
+
+  // ===== Strict + Twitch parameters =====
+  let strictMode = "fit";
+  function params(){
+    const p0 = { contrastBoost: 1.15, spanL: 0.060*1.15, spanC: 0.030*1.15, chromaScale: 1.00 };
+    const p1 = { contrastBoost: 1.06, spanL: 0.034,     spanC: 0.014,     chromaScale: 0.82 };
+    return preset === 0 ? p0 : p1;
+  }
+
+  // ===== Palette: 16 frames (8 complement pairs) =====
+  const L_BASE = 0.72;
+  const BASE_HUES = [20, 120, 60, 145, 0, 95, 35, 170] // all <180 to avoid complement duplicates; order alternates warm/cool;
+
+  function buildPalette(){
+    const seq = [];
+    const p = params();
+    const C_TARGET = (0.14 * p.contrastBoost) * p.chromaScale;
+
+    for (let k=0; k<BASE_HUES.length; k++){
+      const hA = BASE_HUES[k];
+      const hB = (hA + 180) % 360;
+
+      let a = fitChroma(L_BASE, C_TARGET, hA);
+      let b = fitChroma(L_BASE, C_TARGET, hB);
+
+      if (strictMode === "const"){
+        const rgbA = oklch_to_rgb_unclamped(L_BASE, C_TARGET, hA).map(v => clamp(v,0,1));
+        const rgbB = oklch_to_rgb_unclamped(L_BASE, C_TARGET, hB).map(v => clamp(v,0,1));
+        a = {C:C_TARGET, rgb:rgbA};
+        b = {C:C_TARGET, rgb:rgbB};
+      }
+
+      seq.push({pair:k+1, side:"A", L:L_BASE, C:a.C, h:hA, rgb:a.rgb});
+      seq.push({pair:k+1, side:"B", L:L_BASE, C:b.C, h:hB, rgb:b.rgb});
+    }
+    return seq; // 16 frames
+  }
+
+  let PALETTE = buildPalette();
+
+  function ringColor(entry, i){
+    const t = i / (QUADS - 1);
+    const p = params();
+    const dL = (-p.spanL*0.5 + p.spanL * t);
+    const dC = (-p.spanC*0.5 + p.spanC * t);
+
+    const L = clamp(entry.L + dL, 0.0, 1.0);
+    const C = Math.max(0.0, entry.C + dC);
+
+    if (strictMode === "fit"){
+      const fit = fitChroma(L, C, entry.h);
+      return rgbString(fit.rgb);
+    } else {
+      const rgb = oklch_to_rgb_unclamped(L, C, entry.h).map(v => clamp(v,0,1));
+      return rgbString(rgb);
+    }
+  }
+
+  // ===== Geometry: size shrink + aspect collapse =====
+  function aspectAt(t, aspect0){
+    const logA0 = Math.log(aspect0);
+    const gamma = 1.55;
+    const m = Math.pow(t, gamma);
+    return Math.exp(lerp(logA0, 0.0, m));
+  }
+  function computeShrinkRatio(W, H){
+    const size0 = Math.sqrt(W * H);
+    const sideTarget = TARGET_INNER * Math.min(W, H);
+    return Math.pow(sideTarget / size0, 1/(QUADS-1));
+  }
+  let cached = {W:0, H:0, r:0};
+  function quadRect(i, W, H){
+    if (cached.W !== W || cached.H !== H){
+      cached.W = W; cached.H = H;
+      cached.r = computeShrinkRatio(W,H);
+    }
+    const t = i / (QUADS - 1);
+    const a = aspectAt(t, W / H);
+    const size0 = Math.sqrt(W * H);
+    const s = Math.pow(cached.r, i) * size0;
+    const w = s * Math.sqrt(a);
+    const h = s / Math.sqrt(a);
+    return {w, h};
+  }
+
+  // ===== Audio (beat-locked) =====
+  let audio = null;
+  let audioOn = AUDIO_DEFAULT_STUDIO;
+  let audioRunning = false;
+
+  function createAudio(){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    const ac = new AC({ latencyHint: "interactive" });
+
+    const master = ac.createGain();
+    master.gain.value = 0.0001;
+    master.connect(ac.destination);
+
+    const dest = ac.createMediaStreamDestination();
+    master.connect(dest);
+
+    const bass = ac.createOscillator(); bass.type = "sine"; bass.frequency.value = 46;
+    const bass2 = ac.createOscillator(); bass2.type = "sine"; bass2.frequency.value = 92;
+
+    const bassMix1 = ac.createGain(); bassMix1.gain.value = 0.88;
+    const bassMix2 = ac.createGain(); bassMix2.gain.value = 0.12;
+    const bassEnv = ac.createGain(); bassEnv.gain.value = 0.0001;
+
+    const mid = ac.createOscillator(); mid.type = "triangle"; mid.frequency.value = 180;
+    const midEnv = ac.createGain(); midEnv.gain.value = 0.0001;
+    const midBP = ac.createBiquadFilter(); midBP.type = "bandpass"; midBP.frequency.value = 220; midBP.Q.value = 0.85;
+
+    const shaper = ac.createWaveShaper();
+    const n = 2048, curve = new Float32Array(n);
+    for (let i=0;i<n;i++){ const x = (i*2/n)-1; curve[i] = Math.tanh(8*x); }
+    shaper.curve = curve; shaper.oversample = "2x";
+
+    const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 260; lp.Q.value = 0.707;
+
+    bass.connect(bassMix1); bass2.connect(bassMix2);
+    bassMix1.connect(bassEnv); bassMix2.connect(bassEnv);
+    bassEnv.connect(shaper); shaper.connect(lp);
+
+    mid.connect(midEnv); midEnv.connect(midBP);
+
+    const sum = ac.createGain(); lp.connect(sum); midBP.connect(sum); sum.connect(master);
+
+    bass.start(); bass2.start(); mid.start();
+
+    let epoch = null;
+    let nextBeat = 0;
+
+    function scheduleHit(t){
+      const attack = 0.06, peak = 0.55, decay = 1.45;
+      bassEnv.gain.cancelScheduledValues(t);
+      bassEnv.gain.setValueAtTime(0.0001, t);
+      bassEnv.gain.exponentialRampToValueAtTime(peak, t + attack);
+      bassEnv.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+
+      const mAttack = 0.008, mPeak = 0.22, mDecay = 0.22;
+      midEnv.gain.cancelScheduledValues(t);
+      midEnv.gain.setValueAtTime(0.0001, t);
+      midEnv.gain.exponentialRampToValueAtTime(mPeak, t + mAttack);
+      midEnv.gain.exponentialRampToValueAtTime(0.0001, t + mDecay);
+    }
+
+    setInterval(() => {
+      if (!audioRunning || epoch === null) return;
+      const now = ac.currentTime;
+      const ahead = 0.35;
+      while (nextBeat < now + ahead){
+        scheduleHit(nextBeat);
+        nextBeat += BEAT_SECONDS;
+      }
+    }, 25);
+
+    function fadeTo(v, dur=0.22){
+      const now = ac.currentTime;
+      master.gain.cancelScheduledValues(now);
+      master.gain.setValueAtTime(Math.max(0.0001, master.gain.value), now);
+      master.gain.exponentialRampToValueAtTime(Math.max(0.0001, v), now + dur);
+    }
+
+    return {
+      ac, dest,
+      get epoch(){ return epoch; },
+      setEpoch(e){ epoch = e; nextBeat = epoch; },
+      async startAligned(visualNowSec){
+        if (ac.state !== "running") await ac.resume();
+        audioRunning = true;
+        const offset = 0.10;
+        const e = ac.currentTime + offset - visualNowSec;
+        this.setEpoch(e);
+        fadeTo(0.60, 0.18);
+      },
+      stop(){ audioRunning = false; try{ fadeTo(0.0001, 0.14); }catch(e){} }
+    };
+  }
+
+  // ===== Visual clock =====
+  let epochPerf = null;
+  function visualNowSec(){
+    if (audioOn && audio && audioRunning && audio.epoch !== null){
+      return Math.max(0, audio.ac.currentTime - audio.epoch);
+    }
+    if (epochPerf === null) epochPerf = performance.now() / 1000;
+    return Math.max(0, (performance.now()/1000) - epochPerf);
+  }
+
+  // ===== Toast =====
+  let toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toastEl.classList.remove("show"), 1400);
+  }
+
+  function toggleRunbook(force){
+    const want = (typeof force === "boolean") ? force : runbook.classList.contains("hidden");
+    runbook.classList.toggle("hidden", !want);
+  }
+
+  function setStudioUIVisible(v){
+    studioUIVisible = v;
+    if (mode !== "studio") return;
+    // Studio UI = controls only. Title label stays separate.
+    controls.classList.toggle("hidden", !v);
+    hud.classList.add("hidden");
+  }
+
+  // ===== Draw loop =====
+  function drawFrame(idx){
+    const entry = PALETTE[idx];
+    const W = canvas.width, H = canvas.height;
+
+    ctx.fillStyle = ringColor(entry, 0);
+    ctx.fillRect(0, 0, W, H);
+
+    const cx = W * 0.5, cy = H * 0.5;
+    for (let i=0; i<QUADS; i++){
+      const {w, h} = quadRect(i, W, H);
+      ctx.fillStyle = ringColor(entry, i);
+      ctx.fillRect(cx - w*0.5, cy - h*0.5, w, h);
+    }
+
+    const inner = quadRect(QUADS-1, W, H);
+    ctx.strokeStyle = "rgba(255,255,255,0.10)";
+    ctx.lineWidth = Math.max(1, Math.floor(Math.min(W,H) * 0.0015));
+    ctx.strokeRect(cx - inner.w*0.5, cy - inner.h*0.5, inner.w, inner.h);
+
+    if (mode === "studio" && studioUIVisible){
+      hudMeta.textContent = `PAIR_${String(entry.pair).padStart(2,"0")}:${entry.side} / L=${entry.L.toFixed(2)} / C≈${entry.C.toFixed(2)} / TWITCH_${preset}`;
+    }
+  }
+
+  function loop(){
+    if (!started) return;
+    resize();
+    const t = visualNowSec();
+    const idx = Math.floor(t / FRAME_SECONDS) % PALETTE.length;
+    if (recording) drawFrame(idx);
+    else if (idx !== lastIdx){ lastIdx = idx; drawFrame(idx); }
+    requestAnimationFrame(loop);
+  }
+
+  // ===== Fullscreen =====
+  async function goFullscreen(){
+    const el = document.documentElement;
+    if (document.fullscreenElement) await document.exitFullscreen().catch(()=>{});
+    else await el.requestFullscreen?.().catch(()=>{});
+  }
+
+  // ===== Audio toggle =====
+  async function setAudio(on){
+    audioOn = on;
+    audioBtn.textContent = `Audio: ${audioOn ? "ON" : "OFF"}`;
+    audioBtn.classList.toggle("toggleOff", !audioOn);
+
+    if (!audio) audio = createAudio();
+    if (!audio) return;
+
+    if (!started){
+      toast(audioOn ? "Audio armed" : "Audio off");
+      return;
+    }
+    if (audioOn){
+      const t = visualNowSec();
+      await audio.startAligned(t);
+      toast("Audio on (synced)");
+      lastIdx = -1;
+    } else {
+      audio.stop();
+      toast("Audio off");
+    }
+  }
+
+  // ===== Start/Stop =====
+  async function start(which){
+    if (started) return;
+    mode = which;
+    started = true;
+    lastIdx = -1;
+    epochPerf = performance.now()/1000;
+
+    gate.classList.add("hidden");
+    if (!audio) audio = createAudio();
+
+    if (mode === "kiosk"){
+      // kiosk label intentionally hidden (pure presentation)
+      kioskLabel.classList.add("hidden");
+      hud.classList.add("hidden");
+      controls.classList.add("hidden");
+      // === KIOSK DEFAULTS (edit here if you want) ===
+      // preset = 0;        // TWITCH: 0
+      // strictMode = "fit"; // Strict: FIT
+      preset = 0;
+      strictMode = "fit";
+      updateStrictButton();
+      updatePresetButton();
+      PALETTE = buildPalette();
+      lastIdx = -1;
+      await setAudio(AUDIO_DEFAULT_KIOSK); // force silent
+    } else {
+      kioskLabel.classList.remove("hidden");
+      setStudioUIVisible(true);
+      await setAudio(AUDIO_DEFAULT_STUDIO);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  function stopToGate(){
+    started = false;
+    recording = false;
+    gate.classList.remove("hidden");
+    hud.classList.add("hidden");
+    controls.classList.add("hidden");
+    kioskLabel.classList.add("hidden");
+    if (audio) audio.stop();
+  }
+
+  // ===== Screenshot =====
+  function screenshot(){
+    try{
+      const link = document.createElement("a");
+      link.download = `olu_colour_study_oklch_${new Date().toISOString().replace(/[:.]/g,"-")}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast("Screenshot saved");
+    } catch(e){
+      toast("Screenshot failed");
+    }
+  }
+
+  // ===== Recording =====
+  let recorder = null;
+  let recChunks = [];
+  let recActive = false;
+
+  function cycleSeconds(){ return PALETTE.length * FRAME_SECONDS; } // 64
+
+  function waitUntilNextFrameBoundary(){
+    const t = visualNowSec();
+    const frameT = t % FRAME_SECONDS;
+    const wait = (FRAME_SECONDS - frameT);
+    return new Promise(r => setTimeout(r, Math.max(0, wait*1000)));
+  }
+
+  async function recordCycle(){
+    if (!started){ toast("Start Studio mode first"); return; }
+    if (mode !== "studio"){ toast("Recording only in Studio mode"); return; }
+    if (recActive){ toast("Already recording"); return; }
+    if (!canvas.captureStream){ toast("captureStream not supported (try Chrome/Edge)"); return; }
+    if (!window.MediaRecorder){ toast("MediaRecorder not supported"); return; }
+
+    recActive = true;
+    recordBtn.textContent = "Recording…";
+    recordBtn.disabled = true;
+
+    await waitUntilNextFrameBoundary();
+    lastIdx = -1;
+
+    const vStream = canvas.captureStream(FPS);
+    const canAudio = (audioOn && audio && audioRunning && audio.dest && audio.dest.stream.getAudioTracks().length);
+    let stream = vStream;
+
+    if (canAudio){
+      const aTrack = audio.dest.stream.getAudioTracks()[0];
+      const mixed = new MediaStream();
+      vStream.getVideoTracks().forEach(tr => mixed.addTrack(tr));
+      mixed.addTrack(aTrack);
+      stream = mixed;
+    }
+
+    const candidates = ["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"];
+    let mime = "";
+    for (const c of candidates){ if (MediaRecorder.isTypeSupported(c)){ mime = c; break; } }
+    if (!mime){
+      toast("No supported WebM codec");
+      recActive = false; recordBtn.textContent = "Record cycle"; recordBtn.disabled = false;
+      return;
+    }
+
+    recChunks = [];
+    try{
+      recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 10_000_000 });
+    } catch(e){
+      toast("Recorder init failed");
+      recActive = false; recordBtn.textContent = "Record cycle"; recordBtn.disabled = false;
+      return;
+    }
+
+    recorder.ondataavailable = (e) => { if (e.data && e.data.size) recChunks.push(e.data); };
+    recorder.onerror = () => toast("Recorder error");
+    recorder.onstop = () => {
+      recording = false;
+      if (!recChunks.length){
+        toast("No data captured (try Chrome/Edge)");
+        recActive = false; recordBtn.textContent = "Record cycle"; recordBtn.disabled = false;
+        return;
+      }
+      const blob = new Blob(recChunks, { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `olu_colour_study_oklch_cycle_${Math.round(cycleSeconds())}s.webm`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2500);
+      toast(canAudio ? "Cycle recorded (with audio)" : "Cycle recorded (silent)");
+      recActive = false; recordBtn.textContent = "Record cycle"; recordBtn.disabled = false;
+    };
+
+    recording = true;
+    recorder.start(1000);
+    toast(canAudio ? "Recording cycle…" : "Recording silent cycle…");
+
+    const durMs = Math.round(cycleSeconds() * 1000);
+    setTimeout(() => {
+      try { recorder.requestData(); } catch(e){}
+      setTimeout(() => { try{ recorder.stop(); }catch(e){} }, 80);
+    }, durMs);
+  }
+
+  // ===== Strict toggle =====
+  function updateStrictButton(){
+    strictBtn.textContent = `Strict: ${strictMode === "fit" ? "FIT" : "CONST"}`;
+    strictBtn.classList.toggle("toggleOff", strictMode !== "fit");
+  }
+  function toggleStrict(){
+    strictMode = (strictMode === "fit") ? "const" : "fit";
+    PALETTE = buildPalette();
+    updateStrictButton();
+    toast(strictMode === "fit" ? "Gamut fit (disciplined display)" : "Constant chroma (ideological)");
+    lastIdx = -1;
+  }
+
+  // ===== Twitch preset =====
+  function updatePresetButton(){ presetBtn.textContent = `Twitch: ${preset}`; }
+  function setPreset(v){
+    preset = v;
+    updatePresetButton();
+    PALETTE = buildPalette();
+    lastIdx = -1;
+    toast(preset === 0 ? "TWITCH_0 (default)" : "TWITCH_1 (austere drift)");
+  }
+  function togglePreset(){ setPreset(preset === 0 ? 1 : 0); }
+
+  // ===== Hide =====
+  function toggleHide(){
+    if (mode !== "studio") return;
+    setStudioUIVisible(!studioUIVisible);
+    toast(studioUIVisible ? "UI shown" : "UI hidden");
+  }
+
+  // ===== Bind =====
+  beginKiosk.addEventListener("click", () => start("kiosk"));
+  beginStudio.addEventListener("click", () => start("studio"));
+  fsGate.addEventListener("click", goFullscreen);
+  closeRunbook.addEventListener("click", () => toggleRunbook(false));
+  runbookBtn?.addEventListener("click", () => toggleRunbook(true));
+  runbookGateBtn?.addEventListener("click", () => toggleRunbook(true));
+
+  fsBtn.addEventListener("click", goFullscreen);
+  shotBtn.addEventListener("click", screenshot);
+  recordBtn.addEventListener("click", recordCycle);
+  strictBtn.addEventListener("click", toggleStrict);
+  presetBtn.addEventListener("click", togglePreset);
+  hideBtn.addEventListener("click", toggleHide);
+
+  audioBtn.addEventListener("click", () => {
+    if (mode !== "studio"){ toast("Kiosk is silent"); return; }
+    setAudio(!audioOn);
+  });
+
+  window.addEventListener("keydown", (e) => {
+    const k = e.key.toLowerCase();
+    if (e.key === "?" || (e.shiftKey && e.key === "/")) { e.preventDefault(); toggleRunbook(); return; }
+    if (e.key === "Escape") stopToGate();
+    if (k === "f") goFullscreen();
+    if (k === "s" && started && mode==="studio"){ e.preventDefault(); screenshot(); }
+    if (k === "r" && started && mode==="studio"){ e.preventDefault(); recordCycle(); }
+    if (k === "h" && started && mode==="studio"){ e.preventDefault(); toggleHide(); }
+    if (k === "0" && started && mode==="studio"){ e.preventDefault(); setPreset(0); }
+    if (k === "1" && started && mode==="studio"){ e.preventDefault(); setPreset(1); }
+  }, {passive:false});
+
+  gate.addEventListener("pointerdown", (e) => {
+    const t = e.target;
+    if (t && t.tagName === "BUTTON") return;
+    start("kiosk");
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (!audio) return;
+    if (document.hidden) audio.stop();
+    else if (started && audioOn && mode==="studio") setAudio(true);
+  });
+
+  // init
+  updateStrictButton();
+  updatePresetButton();
+  audioBtn.classList.toggle("toggleOff", !audioOn);
+
+})();
+</script>
+</body>
+</html>
