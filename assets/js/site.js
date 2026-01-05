@@ -25,7 +25,7 @@
       poster: "assets/img/thumbs/athamal.jpg"
     },
     {
-      title: "Tesseract_Engine",
+      title: "KLEE_MATION",
       year: "2026",
       type: "tool",
       medium: "Realtime instrument",
@@ -35,10 +35,17 @@
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     },
     {
-      title: "Test",
-      type: "hyperobject",
+      title: "Tesseract_Engine",
+      year: "2026",
+      type: "hyperobject", "loop",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       preview: "assets/video/tesseract_video01.webm"
+    },
+    {
+      title: "OLU // STUDY_01: CHROMA",
+      year: "2026",
+      type: "realtime art", "loop",
+      preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"
     }
   ];
 
