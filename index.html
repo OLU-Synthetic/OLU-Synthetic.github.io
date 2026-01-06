@@ -4,10 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
-  <title>OLU — Realtime Procedural Art</title>
-  <meta name="description" content="OLU — editorial, mythic, ritualistic realtime procedural art systems." />
 
-  <!-- Tab icon (favicon). Upload ONE of these to assets/img/ -->
+  <title>OLU — Realtime Procedural Art</title>
+  <meta name="description" content="OLU — realtime procedural art systems built for screen + gallery." />
+
+  <!-- Favicon (keep one that exists) -->
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 
@@ -19,15 +20,25 @@
 </head>
 
 <body>
+  <a class="skipLink" href="#main">Skip to content</a>
+
   <!-- Persistent fixed Top Bar -->
   <header class="topbar" id="top">
-    <!-- Left: logo mark stays -->
-    <a class="brandLeft" href="#top" aria-label="Home">
+    <!-- Left: REAL menu button (stop pretending it's a logo) -->
+    <button class="iconBtn brandLeft" id="menuBtn" type="button"
+            aria-label="Open menu" aria-controls="siteMenu" aria-expanded="false">
       <span class="brandMark" aria-hidden="true"></span>
-    </a>
+    </button>
 
     <!-- Center: perfectly centered -->
-    <div class="brandCenter" aria-label="OLU">OLU</div>
+    <a class="brandCenter" href="#top" aria-label="Home">OLU</a>
+
+    <!-- Desktop nav (keep it subtle; hide with CSS on small screens if you want) -->
+    <nav class="topNav" aria-label="Primary">
+      <a href="#works">Works</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
 
     <!-- Right: audio + volume + theme -->
     <div class="topControls">
@@ -45,9 +56,32 @@
     </div>
   </header>
 
-  <main>
-    <!-- HERO: two muted looping videos -->
+  <!-- Minimal drawer menu (mobile + clarity) -->
+  <aside class="menuDrawer" id="siteMenu" aria-label="Menu" hidden>
+    <div class="menuInner">
+      <div class="menuHeader">
+        <div class="menuTitle">OLU</div>
+        <button class="iconBtn" id="menuCloseBtn" type="button" aria-label="Close menu">
+          ✕
+        </button>
+      </div>
+
+      <nav class="menuLinks" aria-label="Primary">
+        <a href="#works" data-close-menu>Works</a>
+        <a href="#about" data-close-menu>About</a>
+        <a href="#contact" data-close-menu>Contact</a>
+      </nav>
+
+      <div class="menuMeta">
+        <p class="muted tiny">Realtime procedural systems for screen + installation.</p>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main">
+    <!-- HERO -->
     <section class="hero" aria-label="Featured">
+      <!-- Left: ATHAMAL -->
       <a class="heroPane heroPane--left" href="works/athamal/" aria-label="Open ATHAMAL">
         <video class="heroVid" autoplay loop muted playsinline preload="metadata"
                src="assets/video/athamal_preview.webm"></video>
@@ -55,41 +89,53 @@
         <div class="heroOverlay">
           <p class="kicker">EDITORIAL / MYTHIC / RITUAL / ALIEN</p>
           <h1>Realtime procedural art systems<br/>built for screen + gallery.</h1>
-          <p class="sub">Click to open ATHAMAL (interactive runtime).</p>
-          <div class="heroHint">Open toy ↗</div>
+
+          <!-- Real CTAs (no "Click to...") -->
+          <div class="heroActions">
+            <a class="btn" href="#works">Browse works</a>
+            <span class="btnSpacer" aria-hidden="true"></span>
+            <span class="btn btn--ghost" aria-hidden="true">Run ATHAMAL ↗</span>
+          </div>
+
+          <!-- Accessibility note: the whole pane is clickable -->
+          <p class="muted tiny heroNote">Featured: ATHAMAL</p>
         </div>
       </a>
 
-      <a class="heroPane heroPane--right" href="works/athamal/" aria-label="Open featured work">
+      <!-- Right: TESSERACT (link MUST match preview) -->
+      <a class="heroPane heroPane--right" href="works/tesseract_engine/" aria-label="Open Tesseract Engine">
         <video class="heroVid" autoplay loop muted playsinline preload="metadata"
                src="assets/video/tesseract_preview.webm"></video>
 
         <div class="heroOverlay heroOverlay--right">
+          <!-- Your JS can populate this card -->
           <div class="featuredCard" id="featuredCard"></div>
         </div>
       </a>
     </section>
 
+    <!-- WORKS -->
     <section class="section" id="works">
       <div class="sectionHead">
         <h2>Works</h2>
-        <p class="muted">Click to open interactive runtimes.</p>
+        <p class="muted">Watch first. Run if you want the instrument.</p>
       </div>
       <div class="grid" id="worksGrid" aria-live="polite"></div>
     </section>
 
+    <!-- ABOUT -->
     <section class="section" id="about">
       <div class="sectionHead">
         <h2>About</h2>
-        <p class="muted">Short statement. No fluff.</p>
+        <p class="muted">Statement + capabilities.</p>
       </div>
 
       <div class="twoCol">
         <div class="card">
           <h3>Statement</h3>
           <p>
-            I make realtime systems that behave like relics: procedural objects, slow rituals, controlled chaos.
-            The work sits between instrument and artifact.
+            I build realtime systems that behave like relics: procedural objects, slow rituals, controlled chaos.
+            The work sits between instrument and artifact — built for screen and installation.
           </p>
         </div>
 
@@ -104,17 +150,24 @@
       </div>
     </section>
 
+    <!-- CONTACT -->
     <section class="section" id="contact">
       <div class="sectionHead">
         <h2>Contact</h2>
-        <p class="muted">Commissions, shows, collabs. Finalist Hornsby Art Prize 2025</p>
+        <p class="muted">Commissions, shows, collaborations.</p>
       </div>
 
       <div class="card contactCard">
         <div>
           <p class="muted tiny">Email</p>
-          <p><a href="mailto:you@example.com">you@example.com</a></p>
+
+          <!-- TODO: replace with your real email before shipping -->
+          <p><a href="mailto:hello@yourdomain.com">hello@yourdomain.com</a></p>
+
+          <p class="muted tiny" style="margin-top:.5rem;">Timezone</p>
+          <p class="muted tiny">Australia (AET)</p>
         </div>
+
         <div>
           <p class="muted tiny">Links</p>
           <p class="links">
@@ -135,5 +188,56 @@
   </footer>
 
   <script src="assets/js/site.js"></script>
+
+  <!-- Small, self-contained UX glue (menu + year + video pause on hidden). Keep it. -->
+  <script>
+    // Year
+    (function () {
+      const y = document.getElementById("year");
+      if (y) y.textContent = new Date().getFullYear();
+    })();
+
+    // Menu drawer
+    (function () {
+      const btn = document.getElementById("menuBtn");
+      const closeBtn = document.getElementById("menuCloseBtn");
+      const menu = document.getElementById("siteMenu");
+      const closeLinks = menu ? menu.querySelectorAll("[data-close-menu]") : [];
+
+      function openMenu() {
+        if (!menu || !btn) return;
+        menu.hidden = false;
+        btn.setAttribute("aria-expanded", "true");
+        document.body.classList.add("menuOpen");
+      }
+      function closeMenu() {
+        if (!menu || !btn) return;
+        menu.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("menuOpen");
+      }
+
+      btn && btn.addEventListener("click", () => {
+        const expanded = btn.getAttribute("aria-expanded") === "true";
+        expanded ? closeMenu() : openMenu();
+      });
+      closeBtn && closeBtn.addEventListener("click", closeMenu);
+      closeLinks.forEach(a => a.addEventListener("click", closeMenu));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenu();
+      });
+    })();
+
+    // Pause hero videos when tab hidden (professional behavior)
+    (function () {
+      const vids = () => Array.from(document.querySelectorAll("video.heroVid"));
+      document.addEventListener("visibilitychange", () => {
+        vids().forEach(v => {
+          if (document.hidden) v.pause();
+          else v.play().catch(() => {});
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
