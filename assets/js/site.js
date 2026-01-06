@@ -35,20 +35,20 @@
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     },
     {
+      title: "OLU // STUDY_01: CHROMA",
+      year: "2026",
+      type: "loop",
+      medium: "Realtime colour-field",
+      desc: "A disciplined colour-field study computed in realtime. Concentric planes contract toward a centre square; hue and luminance shift through a fixed cycle for seamless long-duration display.",
+      href: "works/ColourStudy/",
+      preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"  
+    },
+    {
       title: "Tesseract_Engine",
       year: "2026",
       type: "hyperobject",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       preview: "assets/video/tesseract_video01.webm"
-    },
-    {
-      title: "OLU // STUDY_01: CHROMA",
-      year: "2026",
-      type: "loop",
-      medium: "Realtime instrument",
-      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      href: "works/ColourStudy/",
-      preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"  
     }
  
   ];
