@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en" data-theme="dark">
 <head>
@@ -7,6 +8,7 @@
   <title>OLU — Realtime Procedural Art</title>
   <meta name="description" content="OLU — editorial, mythic, ritualistic realtime procedural art systems." />
 
+  <!-- Tab icon (favicon). Upload ONE of these to assets/img/ -->
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 
@@ -20,16 +22,13 @@
 <body>
   <!-- Persistent fixed Top Bar -->
   <header class="topbar" id="top">
-    <!-- Left: REAL hamburger button -->
-    <button class="brandLeft iconBtn menuBtn" id="menuBtn" type="button"
-            aria-label="Open menu" aria-controls="sideNav" aria-expanded="false">
-      <span class="burger" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </span>
-    </button>
+    <!-- Left: logo mark stays -->
+    <a class="brandLeft" href="#top" aria-label="Home">
+      <span class="brandMark" aria-hidden="true"></span>
+    </a>
 
-    <!-- Center: clicking OLU returns to top -->
-    <a class="brandCenter" href="#top" aria-label="Back to top">OLU</a>
+    <!-- Center: perfectly centered -->
+    <div class="brandCenter" aria-label="OLU">OLU</div>
 
     <!-- Right: audio + volume + theme -->
     <div class="topControls">
@@ -47,26 +46,6 @@
     </div>
   </header>
 
-  <!-- Left Drawer + Backdrop -->
-  <div class="navBackdrop" id="navBackdrop" hidden></div>
-
-  <aside class="sideNav" id="sideNav" aria-label="Site navigation" hidden>
-    <div class="sideNavHead">
-      <div class="sideNavTitle">OLU</div>
-      <button class="iconBtn" id="menuCloseBtn" type="button" aria-label="Close menu">✕</button>
-    </div>
-
-    <nav class="sideNavLinks">
-      <a href="#works" data-close>Works</a>
-      <a href="#about" data-close>About</a>
-      <a href="#contact" data-close>Contact</a>
-    </nav>
-
-    <div class="sideNavMeta">
-      <p class="muted tiny">Realtime procedural systems for screen + installation.</p>
-    </div>
-  </aside>
-
   <main>
     <!-- HERO: two muted looping videos -->
     <section class="hero" aria-label="Featured">
@@ -77,12 +56,11 @@
         <div class="heroOverlay">
           <p class="kicker">EDITORIAL / MYTHIC / RITUAL / ALIEN</p>
           <h1>Realtime procedural art systems<br/>built for screen + gallery.</h1>
-          <p class="sub">Open ATHAMAL — interactive runtime.</p>
-          <div class="heroHint">Run ↗</div>
+          <p class="sub">Click to open ATHAMAL (interactive runtime).</p>
+          <div class="heroHint">Open toy ↗</div>
         </div>
       </a>
 
-      <!-- NOTE: you probably want this to link to tesseract later. Leaving as-is per your base code. -->
       <a class="heroPane heroPane--right" href="works/athamal/" aria-label="Open featured work">
         <video class="heroVid" autoplay loop muted playsinline preload="metadata"
                src="assets/video/tesseract_preview.webm"></video>
@@ -95,6 +73,7 @@
 
     <section class="section" id="works">
       <div class="sectionHead">
+        <p class="sectionKicker" aria-hidden="true">01</p>
         <h2>Works</h2>
         <p class="muted">Click to open interactive runtimes.</p>
       </div>
@@ -104,39 +83,28 @@
     <section class="section" id="about">
       <div class="sectionHead">
         <h2>About</h2>
-        <p class="muted">Statement + practice.</p>
+        <p class="muted">Short statement. No fluff.</p>
       </div>
 
-      <!-- was twoCol, now 3-up -->
-      <div class="threeCol">
+      <div class="twoCol">
         <div class="card">
           <h3>Statement</h3>
           <p>
-            I make realtime systems that behave like relics: procedural objects, slow rituals, controlled chaos.
-            The work sits between instrument and artifact.
+            I build realtime systems that behave like relics: procedural objects, slow rituals, controlled chaos.
+            My work sits between instrument and artifact — engineered to loop cleanly, perform reliably, and hold attention without narrative handholding.
+
+            Available for installations, commissioned web pieces, and custom procedural tools.
           </p>
         </div>
 
         <div class="card">
           <h3>Practice</h3>
           <ul class="list">
-            <li>Realtime / procedural visuals</li>
-            <li>Seamless loops for screen + installation</li>
-            <li>Interactive instruments</li>
+            <li>Realtime / procedural visuals (WebGL / Three.js / Unity)</li>
+            <li>Seamless loops for screens, kiosks, and installations</li>
+            <li>Interactive instruments with restrained UI</li>
+            <li>Export pipelines (stills / loops) + runbooks for deployment</li>
           </ul>
-        </div>
-
-        <!-- New third column -->
-        <div class="card">
-          <h3>Selected</h3>
-          <ul class="list">
-            <li>Commissions — <span class="muted">available</span></li>
-            <li>Shows / installations — <span class="muted">add credits</span></li>
-            <li>Tools / releases — <span class="muted">GitHub + Itch</span></li>
-          </ul>
-          <p class="muted tiny" style="margin-top:.75rem;">
-            Replace the placeholders with 3–6 concrete items. No “soon”.
-          </p>
         </div>
       </div>
     </section>
@@ -144,20 +112,15 @@
     <section class="section" id="contact">
       <div class="sectionHead">
         <h2>Contact</h2>
-        <p class="muted">Commissions, shows, collaborations.</p>
+        <p class="muted">Commissions, shows, collabs.</p>
       </div>
 
       <div class="card contactCard">
         <div>
           <p class="muted tiny">Email</p>
-          <!-- Replace with your real email -->
-          <p><a href="mailto:hello@yourdomain.com">hello@yourdomain.com</a></p>
-
-          <p class="muted tiny" style="margin-top:.75rem;">Timezone</p>
-          <p class="muted">Australia (AET)</p>
+          <p><a href="mailto:poopleie@yahoo.com">you@example.com</a></p>
         </div>
-
-        <div class="contactRight">
+        <div>
           <p class="muted tiny">Links</p>
           <p class="links">
             <a href="https://github.com/OLU-Synthetic" target="_blank" rel="noreferrer">GitHub</a>
@@ -168,8 +131,7 @@
     </section>
   </main>
 
-  <!-- Footer styled like your screenshot (centered, minimal) -->
-  <footer class="footer footerCenter">
+  <footer class="footer">
     <p class="muted tiny">
       © <span id="year"></span> OLU ·
       <a href="https://github.com/OLU-Synthetic" target="_blank" rel="noreferrer">GitHub</a> ·
@@ -178,51 +140,6 @@
   </footer>
 
   <script src="assets/js/site.js"></script>
-
-  <!-- Menu + year glue (tiny; avoids editing site.js) -->
-  <script>
-    // year
-    (function () {
-      const y = document.getElementById("year");
-      if (y) y.textContent = new Date().getFullYear();
-    })();
-
-    // left drawer
-    (function () {
-      const btn = document.getElementById("menuBtn");
-      const closeBtn = document.getElementById("menuCloseBtn");
-      const nav = document.getElementById("sideNav");
-      const backdrop = document.getElementById("navBackdrop");
-      const closeLinks = nav ? nav.querySelectorAll("[data-close]") : [];
-
-      function openNav() {
-        if (!btn || !nav || !backdrop) return;
-        nav.hidden = false;
-        backdrop.hidden = false;
-        btn.setAttribute("aria-expanded", "true");
-        document.body.classList.add("navOpen");
-      }
-      function closeNav() {
-        if (!btn || !nav || !backdrop) return;
-        nav.hidden = true;
-        backdrop.hidden = true;
-        btn.setAttribute("aria-expanded", "false");
-        document.body.classList.remove("navOpen");
-      }
-
-      btn && btn.addEventListener("click", () => {
-        const expanded = btn.getAttribute("aria-expanded") === "true";
-        expanded ? closeNav() : openNav();
-      });
-
-      closeBtn && closeBtn.addEventListener("click", closeNav);
-      backdrop && backdrop.addEventListener("click", closeNav);
-      closeLinks.forEach(a => a.addEventListener("click", closeNav));
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeNav();
-      });
-    })();
-  </script>
 </body>
 </html>
+
