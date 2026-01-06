@@ -4,11 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
-
   <title>OLU — Realtime Procedural Art</title>
-  <meta name="description" content="OLU — realtime procedural art systems built for screen + gallery." />
+  <meta name="description" content="OLU — editorial, mythic, ritualistic realtime procedural art systems." />
 
-  <!-- Favicon (keep one that exists) -->
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 
@@ -20,25 +18,18 @@
 </head>
 
 <body>
-  <a class="skipLink" href="#main">Skip to content</a>
-
   <!-- Persistent fixed Top Bar -->
   <header class="topbar" id="top">
-    <!-- Left: REAL menu button (stop pretending it's a logo) -->
-    <button class="iconBtn brandLeft" id="menuBtn" type="button"
-            aria-label="Open menu" aria-controls="siteMenu" aria-expanded="false">
-      <span class="brandMark" aria-hidden="true"></span>
+    <!-- Left: REAL hamburger button -->
+    <button class="brandLeft iconBtn menuBtn" id="menuBtn" type="button"
+            aria-label="Open menu" aria-controls="sideNav" aria-expanded="false">
+      <span class="burger" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
     </button>
 
-    <!-- Center: perfectly centered -->
-    <a class="brandCenter" href="#top" aria-label="Home">OLU</a>
-
-    <!-- Desktop nav (keep it subtle; hide with CSS on small screens if you want) -->
-    <nav class="topNav" aria-label="Primary">
-      <a href="#works">Works</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </nav>
+    <!-- Center: clicking OLU returns to top -->
+    <a class="brandCenter" href="#top" aria-label="Back to top">OLU</a>
 
     <!-- Right: audio + volume + theme -->
     <div class="topControls">
@@ -56,32 +47,29 @@
     </div>
   </header>
 
-  <!-- Minimal drawer menu (mobile + clarity) -->
-  <aside class="menuDrawer" id="siteMenu" aria-label="Menu" hidden>
-    <div class="menuInner">
-      <div class="menuHeader">
-        <div class="menuTitle">OLU</div>
-        <button class="iconBtn" id="menuCloseBtn" type="button" aria-label="Close menu">
-          ✕
-        </button>
-      </div>
+  <!-- Left Drawer + Backdrop -->
+  <div class="navBackdrop" id="navBackdrop" hidden></div>
 
-      <nav class="menuLinks" aria-label="Primary">
-        <a href="#works" data-close-menu>Works</a>
-        <a href="#about" data-close-menu>About</a>
-        <a href="#contact" data-close-menu>Contact</a>
-      </nav>
+  <aside class="sideNav" id="sideNav" aria-label="Site navigation" hidden>
+    <div class="sideNavHead">
+      <div class="sideNavTitle">OLU</div>
+      <button class="iconBtn" id="menuCloseBtn" type="button" aria-label="Close menu">✕</button>
+    </div>
 
-      <div class="menuMeta">
-        <p class="muted tiny">Realtime procedural systems for screen + installation.</p>
-      </div>
+    <nav class="sideNavLinks">
+      <a href="#works" data-close>Works</a>
+      <a href="#about" data-close>About</a>
+      <a href="#contact" data-close>Contact</a>
+    </nav>
+
+    <div class="sideNavMeta">
+      <p class="muted tiny">Realtime procedural systems for screen + installation.</p>
     </div>
   </aside>
 
-  <main id="main">
-    <!-- HERO -->
+  <main>
+    <!-- HERO: two muted looping videos -->
     <section class="hero" aria-label="Featured">
-      <!-- Left: ATHAMAL -->
       <a class="heroPane heroPane--left" href="works/athamal/" aria-label="Open ATHAMAL">
         <video class="heroVid" autoplay loop muted playsinline preload="metadata"
                src="assets/video/athamal_preview.webm"></video>
@@ -89,53 +77,43 @@
         <div class="heroOverlay">
           <p class="kicker">EDITORIAL / MYTHIC / RITUAL / ALIEN</p>
           <h1>Realtime procedural art systems<br/>built for screen + gallery.</h1>
-
-          <!-- Real CTAs (no "Click to...") -->
-          <div class="heroActions">
-            <a class="btn" href="#works">Browse works</a>
-            <span class="btnSpacer" aria-hidden="true"></span>
-            <span class="btn btn--ghost" aria-hidden="true">Run ATHAMAL ↗</span>
-          </div>
-
-          <!-- Accessibility note: the whole pane is clickable -->
-          <p class="muted tiny heroNote">Featured: ATHAMAL</p>
+          <p class="sub">Open ATHAMAL — interactive runtime.</p>
+          <div class="heroHint">Run ↗</div>
         </div>
       </a>
 
-      <!-- Right: TESSERACT (link MUST match preview) -->
-      <a class="heroPane heroPane--right" href="works/tesseract_engine/" aria-label="Open Tesseract Engine">
+      <!-- NOTE: you probably want this to link to tesseract later. Leaving as-is per your base code. -->
+      <a class="heroPane heroPane--right" href="works/athamal/" aria-label="Open featured work">
         <video class="heroVid" autoplay loop muted playsinline preload="metadata"
                src="assets/video/tesseract_preview.webm"></video>
 
         <div class="heroOverlay heroOverlay--right">
-          <!-- Your JS can populate this card -->
           <div class="featuredCard" id="featuredCard"></div>
         </div>
       </a>
     </section>
 
-    <!-- WORKS -->
     <section class="section" id="works">
       <div class="sectionHead">
         <h2>Works</h2>
-        <p class="muted">Watch first. Run if you want the instrument.</p>
+        <p class="muted">Click to open interactive runtimes.</p>
       </div>
       <div class="grid" id="worksGrid" aria-live="polite"></div>
     </section>
 
-    <!-- ABOUT -->
     <section class="section" id="about">
       <div class="sectionHead">
         <h2>About</h2>
-        <p class="muted">Statement + capabilities.</p>
+        <p class="muted">Statement + practice.</p>
       </div>
 
-      <div class="twoCol">
+      <!-- was twoCol, now 3-up -->
+      <div class="threeCol">
         <div class="card">
           <h3>Statement</h3>
           <p>
-            I build realtime systems that behave like relics: procedural objects, slow rituals, controlled chaos.
-            The work sits between instrument and artifact — built for screen and installation.
+            I make realtime systems that behave like relics: procedural objects, slow rituals, controlled chaos.
+            The work sits between instrument and artifact.
           </p>
         </div>
 
@@ -147,10 +125,22 @@
             <li>Interactive instruments</li>
           </ul>
         </div>
+
+        <!-- New third column -->
+        <div class="card">
+          <h3>Selected</h3>
+          <ul class="list">
+            <li>Commissions — <span class="muted">available</span></li>
+            <li>Shows / installations — <span class="muted">add credits</span></li>
+            <li>Tools / releases — <span class="muted">GitHub + Itch</span></li>
+          </ul>
+          <p class="muted tiny" style="margin-top:.75rem;">
+            Replace the placeholders with 3–6 concrete items. No “soon”.
+          </p>
+        </div>
       </div>
     </section>
 
-    <!-- CONTACT -->
     <section class="section" id="contact">
       <div class="sectionHead">
         <h2>Contact</h2>
@@ -160,15 +150,14 @@
       <div class="card contactCard">
         <div>
           <p class="muted tiny">Email</p>
-
-          <!-- TODO: replace with your real email before shipping -->
+          <!-- Replace with your real email -->
           <p><a href="mailto:hello@yourdomain.com">hello@yourdomain.com</a></p>
 
-          <p class="muted tiny" style="margin-top:.5rem;">Timezone</p>
-          <p class="muted tiny">Australia (AET)</p>
+          <p class="muted tiny" style="margin-top:.75rem;">Timezone</p>
+          <p class="muted">Australia (AET)</p>
         </div>
 
-        <div>
+        <div class="contactRight">
           <p class="muted tiny">Links</p>
           <p class="links">
             <a href="https://github.com/OLU-Synthetic" target="_blank" rel="noreferrer">GitHub</a>
@@ -179,7 +168,8 @@
     </section>
   </main>
 
-  <footer class="footer">
+  <!-- Footer styled like your screenshot (centered, minimal) -->
+  <footer class="footer footerCenter">
     <p class="muted tiny">
       © <span id="year"></span> OLU ·
       <a href="https://github.com/OLU-Synthetic" target="_blank" rel="noreferrer">GitHub</a> ·
@@ -189,53 +179,48 @@
 
   <script src="assets/js/site.js"></script>
 
-  <!-- Small, self-contained UX glue (menu + year + video pause on hidden). Keep it. -->
+  <!-- Menu + year glue (tiny; avoids editing site.js) -->
   <script>
-    // Year
+    // year
     (function () {
       const y = document.getElementById("year");
       if (y) y.textContent = new Date().getFullYear();
     })();
 
-    // Menu drawer
+    // left drawer
     (function () {
       const btn = document.getElementById("menuBtn");
       const closeBtn = document.getElementById("menuCloseBtn");
-      const menu = document.getElementById("siteMenu");
-      const closeLinks = menu ? menu.querySelectorAll("[data-close-menu]") : [];
+      const nav = document.getElementById("sideNav");
+      const backdrop = document.getElementById("navBackdrop");
+      const closeLinks = nav ? nav.querySelectorAll("[data-close]") : [];
 
-      function openMenu() {
-        if (!menu || !btn) return;
-        menu.hidden = false;
+      function openNav() {
+        if (!btn || !nav || !backdrop) return;
+        nav.hidden = false;
+        backdrop.hidden = false;
         btn.setAttribute("aria-expanded", "true");
-        document.body.classList.add("menuOpen");
+        document.body.classList.add("navOpen");
       }
-      function closeMenu() {
-        if (!menu || !btn) return;
-        menu.hidden = true;
+      function closeNav() {
+        if (!btn || !nav || !backdrop) return;
+        nav.hidden = true;
+        backdrop.hidden = true;
         btn.setAttribute("aria-expanded", "false");
-        document.body.classList.remove("menuOpen");
+        document.body.classList.remove("navOpen");
       }
 
       btn && btn.addEventListener("click", () => {
         const expanded = btn.getAttribute("aria-expanded") === "true";
-        expanded ? closeMenu() : openMenu();
+        expanded ? closeNav() : openNav();
       });
-      closeBtn && closeBtn.addEventListener("click", closeMenu);
-      closeLinks.forEach(a => a.addEventListener("click", closeMenu));
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeMenu();
-      });
-    })();
 
-    // Pause hero videos when tab hidden (professional behavior)
-    (function () {
-      const vids = () => Array.from(document.querySelectorAll("video.heroVid"));
-      document.addEventListener("visibilitychange", () => {
-        vids().forEach(v => {
-          if (document.hidden) v.pause();
-          else v.play().catch(() => {});
-        });
+      closeBtn && closeBtn.addEventListener("click", closeNav);
+      backdrop && backdrop.addEventListener("click", closeNav);
+      closeLinks.forEach(a => a.addEventListener("click", closeNav));
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeNav();
       });
     })();
   </script>
