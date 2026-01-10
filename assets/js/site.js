@@ -49,6 +49,15 @@
       type: "hyperobject",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       preview: "assets/video/tesseract_video01.webm"
+    },
+    { 
+      title: "DATA_SCRAPE",
+      year: "2026",
+      type: "loop",
+      medium: "Realtime procerdual field",
+      desc: "A tiled atmosphere of discrete states. Packets pass, thresholds click, and color reorganizes without drama—an image that feels like harvesting, indexing, and forgetting.",
+      href: "works/DataScrape/",
+      preview: "assets/video/data_scrape_loop.webm"
     }
  
   ];
