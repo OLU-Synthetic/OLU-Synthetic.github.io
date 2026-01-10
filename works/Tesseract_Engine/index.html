@@ -1,1 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tesseract (4D Hypercube) — Perfect 10s Loop</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #05060c; }
+    canvas { display: block; }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+<script type="module">
+  import * as THREE from "three";
+
+  // ---------- Loop timing ----------
+  const LOOP_SECONDS = 10.0;
+  const TWO_PI = Math.PI * 2.0;
+
+  // ---------- 4D projection distance (configurable) ----------
+  // Larger d => weaker perspective from w; smaller d => stronger "4D depth" effect.
+  let d = 4.0;
+
+  // ---------- Renderer / scene / camera ----------
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  document.body.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x05060c);
+
+  const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.01, 500);
+  camera.position.set(0, 0, 8);
+
+  // ---------- Build tesseract vertices (16) in 4D ----------
+  // Vertices at (±1, ±1, ±1, ±1)
+  const verts4 = [];
+  for (let i = 0; i < 16; i++) {
+    const x = (i & 1) ?  1 : -1;
+    const y = (i & 2) ?  1 : -1;
+    const z = (i & 4) ?  1 : -1;
+    const w = (i & 8) ?  1 : -1;
+    verts4.push([x, y, z, w]);
+  }
+
+  // Edges connect vertices differing in exactly one coordinate (32 edges)
+  const edges = [];
+  for (let a = 0; a < 16; a++) {
+    for (let b = a + 1; b < 16; b++) {
+      const diff = a ^ b;
+      // exactly one bit differs => edge
+      if (diff && (diff & (diff - 1)) === 0) edges.push([a, b]);
+    }
+  }
+
+  // ---------- 4D rotation helpers ----------
+  // Rotations in planes: xw, yw, zw (indices: x=0,y=1,z=2,w=3)
+  function rotate4D(v, i, j, angle) {
+    const c = Math.cos(angle), s = Math.sin(angle);
+    const vi = v[i], vj = v[j];
+    v[i] = vi * c - vj * s;
+    v[j] = vi * s + vj * c;
+  }
+
+  function transformVertex4D(src, u) {
+    // copy
+    const v = [src[0], src[1], src[2], src[3]];
+
+    // Perfect-loop periodic angles (functions of u; u has period 2π)
+    const axw = 0.95 * Math.sin(u);
+    const ayw = 0.80 * Math.sin(u + 2.1);
+    const azw = 0.70 * Math.sin(u + 4.2);
+
+    // Apply rotations (order matters—this is intentional)
+    rotate4D(v, 0, 3, axw); // xw
+    rotate4D(v, 1, 3, ayw); // yw
+    rotate4D(v, 2, 3, azw); // zw
+
+    return v;
+  }
+
+  // ---------- 4D -> 3D projection ----------
+  // Perspective in w: scale = d/(d - w)
+  function projectTo3D(v4) {
+    const w = v4[3];
+    const denom = (d - w);
+    // prevent blowups if user makes d too small
+    const s = d / (Math.abs(denom) < 1e-4 ? (denom < 0 ? -1e-4 : 1e-4) : denom);
+    return [v4[0] * s, v4[1] * s, v4[2] * s];
+  }
+
+  // ---------- Geometry for line segments ----------
+  const positions = new Float32Array(edges.length * 2 * 3);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+  // ---------- Additive glow stack (no postprocessing) ----------
+  // Same geometry, different scales/opacities to fake bloom halo.
+  function makeGlowLines(scale, opacity) {
+    const mat = new THREE.LineBasicMaterial({
+      color: 0x8fb6ff,
+      transparent: true,
+      opacity,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthTest: true
+    });
+    const lines = new THREE.LineSegments(geometry, mat);
+    lines.scale.setScalar(scale);
+    return lines;
+  }
+
+  const glow2 = makeGlowLines(1.10, 0.08);
+  const glow1 = makeGlowLines(1.05, 0.14);
+  const core  = makeGlowLines(1.00, 0.55);
+
+  scene.add(glow2, glow1, core);
+
+  // ---------- Auto-fit & camera orbit ----------
+  const clock = new THREE.Clock();
+  let camRadius = 8.0;
+
+  function update(u) {
+    // Transform + project all vertices
+    const v3 = new Array(16);
+    let maxR = 0;
+
+    for (let i = 0; i < 16; i++) {
+      const v4t = transformVertex4D(verts4[i], u);
+      const p3 = projectTo3D(v4t);
+      v3[i] = p3;
+      const r = Math.hypot(p3[0], p3[1], p3[2]);
+      if (r > maxR) maxR = r;
+    }
+
+    // Fill line segment positions
+    let k = 0;
+    for (let e = 0; e < edges.length; e++) {
+      const a = edges[e][0], b = edges[e][1];
+      const pa = v3[a], pb = v3[b];
+
+      positions[k++] = pa[0]; positions[k++] = pa[1]; positions[k++] = pa[2];
+      positions[k++] = pb[0]; positions[k++] = pb[1]; positions[k++] = pb[2];
+    }
+    geometry.attributes.position.needsUpdate = true;
+
+    // Auto-fit: scale object so projected radius targets a consistent on-screen size
+    const targetRadius = 2.2;
+    const fitScale = targetRadius / Math.max(maxR, 1e-6);
+    glow2.scale.setScalar(1.10 * fitScale);
+    glow1.scale.setScalar(1.05 * fitScale);
+    core.scale .setScalar(1.00 * fitScale);
+
+    // Camera distance based on fitted radius + FOV
+    const fovRad = (camera.fov * Math.PI) / 180;
+    const desired = (targetRadius / Math.tan(fovRad * 0.5)) * 1.35;
+    camRadius = THREE.MathUtils.lerp(camRadius, desired, 0.06);
+
+    // Perfect-loop orbit (one revolution per 10 seconds)
+    const orbit = u;
+    const yBob = 0.35 * Math.sin(u);
+    camera.position.set(
+      camRadius * Math.cos(orbit),
+      yBob,
+      camRadius * Math.sin(orbit)
+    );
+    camera.lookAt(0, 0, 0);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime() % LOOP_SECONDS;
+    const u = TWO_PI * (t / LOOP_SECONDS);
+    update(u);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // ---------- Resize ----------
+  addEventListener("resize", () => {
+    renderer.setSize(innerWidth, innerHeight);
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  // ---------- Optional: tweak projection distance with keys ----------
+  addEventListener("keydown", (e) => {
+    if (e.key === "[") d = Math.max(1.2, d - 0.2);
+    if (e.key === "]") d = Math.min(12.0, d + 0.2);
+  });
+</script>
+</body>
+</html>
 
