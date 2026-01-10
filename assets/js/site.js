@@ -70,7 +70,18 @@
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       href: "works/FormalLoop/",
       preview: "assets/video/FormalLoopPreview01-1.mp4"
+    },
+    {
+      title: "Simulation Simulator",
+      year: "2025",
+      type: "Realtime ambient sim",
+      medium: "Download (itch.io)",
+      desc: "Experimental realtime walking simulation. A controlled drift through systems, signage, and soft failure.",
+      href: "https://xvrz.itch.io/simulation-simulator-2025",
+      poster: "assets/img/thumbs/SimSimPoster02.png",
+      external: true
     }
+
  
   ];
 
