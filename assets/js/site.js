@@ -57,7 +57,8 @@
       medium: "Realtime procerdual field",
       desc: "A tiled atmosphere of discrete states. Packets pass, thresholds click, and color reorganizes without drama—an image that feels like harvesting, indexing, and forgetting.",
       href: "works/DataScrape/",
-      preview: "assets/video/data_scrape_loop.webm"
+      preview: "assets/video/data_scrape_loop.webm",
+      poster: "assets/img/thumbs/data_scrape_preview.png"
     }
  
   ];
