@@ -52,6 +52,7 @@
       href: "works/ColourStudy/",
       preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"  
     },  
+    /*
     {
       title: "KLEE_MATION",
       year: "2026",
@@ -62,6 +63,7 @@
       preview: "assets/video/tesseract_preview.webm",
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     },
+    */
     {
       title: "FormalLoop",
       year: "2026",
