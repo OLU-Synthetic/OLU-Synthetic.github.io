@@ -78,7 +78,7 @@
       medium: "Download (itch.io)",
       desc: "Experimental realtime walking simulation. A controlled drift through systems, signage, and soft failure.",
       href: "https://xvrz.itch.io/simulation-simulator-2025",
-      poster: "assets/img/thumbs/SimSimPoster02.png",
+      poster: "assets/img/thumbs/SimSimPoster.png",
       external: true
     }
 
