@@ -41,7 +41,7 @@
       medium: "Realtime procedural loop",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
       href: "works/Tesseract_Engine/",
-      preview: "assets/video/Tesseract_Preview02.webm"
+      preview: "assets/video/TesseractPreview03.webm"
     },
     {
       title: "Study_01: CHROMA",
