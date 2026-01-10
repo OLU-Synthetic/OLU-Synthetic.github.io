@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>DATA_SCRAPE — 64-color OKLCH grid (commensurate interference v7)</title>
+  <style>
+    html, body { margin:0; height:100%; background:#000; overflow:hidden; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    canvas{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:auto; height:auto; image-rendering: pixelated; image-rendering: crisp-edges; background:#000; }
+    #gate{ position:fixed; inset:0; display:grid; place-items:center; background: radial-gradient(1000px 700px at 50% 42%, rgba(255,255,255,0.06), rgba(0,0,0,1)); color:#eaeaea; }
+    #panel{ width:min(760px, 92vw); padding:22px 22px 18px; border:1px solid rgba(255,255,255,0.18); border-radius:16px; background: rgba(0,0,0,0.55); box-shadow: 0 20px 80px rgba(0,0,0,0.55); }
+    #panel h1{ margin:0 0 10px; font-weight:950; font-size:14px; letter-spacing:0.9px; opacity:0.95; }
+    #panel p{ margin:0 0 14px; font-size:13px; line-height:1.35; opacity:0.82; }
+    #panel .row{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    #panel button{ appearance:none; border:none; cursor:pointer; padding:10px 14px; border-radius:12px; background:#fff; color:#000; font-weight:950; font-size:13px; }
+    #panel .hint{ font-size:12px; opacity:0.7; }
+    #hud{ position:fixed; left:12px; bottom:10px; font-size:12px; opacity:0.55; color:#d8f6ff; user-select:none; pointer-events:none; mix-blend-mode: screen; text-shadow: 0 0 12px rgba(0,255,255,0.10); }
+    #dev{ position:fixed; top:12px; right:12px; width:min(540px, 92vw); padding:12px 12px 10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.55); color:#eaeaea; display:none; backdrop-filter: blur(6px); }
+    #dev h2{ margin:0 0 10px; font-size:12px; opacity:0.9; letter-spacing:0.4px; font-weight:950; }
+    .ctl{ display:grid; grid-template-columns: 1fr 220px; gap:10px; align-items:center; margin:10px 0; }
+    .ctl label{ font-size:12px; opacity:0.80; }
+    .ctl input[type="range"]{ width:100%; }
+    .ctl output{ font-variant-numeric: tabular-nums; font-size:12px; opacity:0.85; text-align:right; }
+    select{ width:100%; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.25); color:#fff; font-weight:800; outline:none; }
+    .btnrow{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .btnrow button{ background: rgba(255,255,255,0.10); color:#fff; border:1px solid rgba(255,255,255,0.18); padding:8px 10px; border-radius:10px; font-size:12px; font-weight:950; }
+    .sep{ margin:14px 0 6px; height:1px; background:rgba(255,255,255,0.12); }
+    .tiny{ font-size:11px; opacity:0.72; margin-top:8px; line-height:1.25; }
+    b{ font-weight:950; }
+  
+    body.kiosk, body.kiosk * { cursor:none !important; }
+
+    /* Dev panel usability */
+    #dev{ max-height: calc(100vh - 24px); overflow-y:auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+    /* Gate buttons */
+    #panel .ghost{ background: rgba(255,255,255,0.10); color:#fff; border:1px solid rgba(255,255,255,0.18); }
+    #panel .ghost:hover{ background: rgba(255,255,255,0.14); }
+    #panel .ghost.small{ width:40px; padding:10px 0; text-align:center; }
+
+    /* Help overlay */
+    #help{ position:fixed; inset:0; display:none; place-items:center; background: rgba(0,0,0,0.78); color:#eaeaea; z-index:9999; }
+    #help .card{ width:min(820px, 94vw); max-height: 88vh; overflow:auto; padding:22px; border-radius:18px;
+      border:1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.70); box-shadow: 0 20px 80px rgba(0,0,0,0.60);
+      backdrop-filter: blur(8px);
+    }
+    #help h2{ margin:0 0 10px; font-size:13px; font-weight:950; letter-spacing:0.6px; opacity:0.95; }
+    #help p, #help li{ font-size:12.5px; line-height:1.35; opacity:0.85; }
+    #help .krow{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; }
+    #help .kbd{ font-variant-numeric: tabular-nums; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.20); background:rgba(255,255,255,0.08); opacity:0.95; font-weight:900; }
+
+    /* Panel scrolling (so params are reachable) */
+    #panel{ max-height: calc(100vh - 120px); overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+
+    .sep{ height:1px; background: rgba(255,255,255,0.12); margin: 12px 0; }
+    .row2{ display:flex; gap:10px; align-items:center; justify-content:space-between; }
+    .sub{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; }
+    .sub > div{ display:flex; gap:10px; align-items:center; }
+    .mini{ font-size:11px; opacity:0.75; width:70px; display:inline-block; }
+    .chk{ display:flex; gap:8px; align-items:center; font-size:13px; opacity:0.9; }
+
+    /* Studio: hide UI with H */
+    body.uiHidden #panel, body.uiHidden #hud, body.uiHidden #dev{ display:none !important; }
+
+    /* Kiosk must be visually silent */
+    body.kiosk #panel, body.kiosk #hud, body.kiosk #dev, body.kiosk #help{ display:none !important; }
+
+</style>
+</head>
+<body>
+  <div id="wrap"><canvas id="c"></canvas></div>
+
+  <div id="gate">
+    <div id="panel">
+      <h1>DATA_SCRAPE</h1>
+      <p>
+        Movement reboot: <b>commensurate wave interference</b> only.
+        No scanner tricks, no post-processing stack.
+        Time is <b>exactly periodic</b> with loop period <b>T</b> (all ω are integer multiples of 2π/T).
+        Quantize the interference field and re-index the <b>64-color</b> OKLCH palette.
+      </p>
+      <div class="row">
+        <button id="kioskBtn">BEGIN — KIOSK</button>
+        <button id="studioBtn" class="ghost">BEGIN — STUDIO</button>
+        <button id="helpBtn" class="ghost small" title="Help" aria-label="Help">?</button>
+      </div>
+      <div class="hint">ESC: back • H: hide • S: PNG • R: loop • A: audio • Ctrl+Shift+D: dev • ?: help</div>
+    </div>
+  </div>
+
+  <div id="help" role="dialog" aria-modal="true" aria-label="Help">
+    <div class="card">
+      <div class="krow">
+        <h2>DATA_SCRAPE — controls</h2>
+        <button id="helpClose" class="ghost" aria-label="Close help">CLOSE</button>
+      </div>
+      <p>
+        This piece is an exactly-periodic loop: the full state repeats every <b>T</b>.
+        Motion is built from commensurate interference, then quantized and re-indexed into a fixed 64-color OKLCH palette.
+      </p>
+      <div class="sep"></div>
+      <ul>
+        <li><span class="kbd">ESC</span> back to gate</li>
+        <li><span class="kbd">H</span> hide / show UI (studio only)</li>
+        <li><span class="kbd">S</span> snapshot PNG (studio only)</li>
+        <li><span class="kbd">R</span> record 1× seamless loop (studio only)</li>
+        <li><span class="kbd">A</span> toggle audio (studio only)</li>
+        <li><span class="kbd">P</span> pause / resume (studio only)</li>
+        <li><span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">D</span> toggle dev panel (studio only)</li>
+        <li><span class="kbd">?</span> toggle this help</li>
+      </ul>
+      <div class="sep"></div>
+      <p class="tiny">
+        Tip: If you ever see a “special” outer column/row, it’s almost always fractional scaling. This build forces integer CSS sizing to keep pixels honest.
+      </p>
+    </div>
+  </div>
+
+  <div id="hud"></div>
+
+  <div id="dev">
+    <h2>DEV CONTROLS</h2>
+
+    <div class="ctl">
+      <label>Pixel size (uniform squares)</label>
+      <div><input id="px" type="range" min="2" max="16" step="1" value="8"><output id="pxo">8</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Grid density (macro cells)</label>
+      <div><input id="gd" type="range" min="12" max="96" step="1" value="96"><output id="gdo">96</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Palette profile</label>
+      <div>
+        <select id="pal">
+          <option value="muted_tech">Muted Tech (default)</option>
+          <option value="pastel_clean">Pastel Clean</option>
+          <option value="cmyk_soft">CMYK Soft</option>
+          <option value="teal_amber">Teal / Amber</option>
+          <option value="mono_cyan">Mono Cyan</option>
+          <option value="earthy">Earthy</option>
+          <option value="neon">Neon (danger)</option>
+          <option value="greyscale">Greyscale</option>
+          <option value="archive_paper">Archive Paper</option>
+          <option value="cold_terminal">Cold Terminal</option>
+          <option value="heatmap_disc">Disciplined Heatmap</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label>Palette spread (hue diversity)</label>
+      <div><input id="hs" type="range" min="0.25" max="1.50" step="0.01" value="1.00"><output id="hso">1.00</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Seed (re-shuffle layout)</label>
+      <div><input id="seed" type="range" min="0" max="1" step="0.001" value="0.123"><output id="seedo">0.123</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Gridline strength</label>
+      <div><input id="gl" type="range" min="0" max="1" step="0.01" value="0.06"><output id="glo">0.06</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Grid offset (kills seams)</label>
+      <div><input id="go" type="range" min="0" max="1" step="0.001" value="0.383"><output id="goo">0.383</output></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="ctl">
+      <label>Interference preset (K harmonics)</label>
+      <div>
+        <select id="preset">
+          <option value="brutal3">Brutal 3 (clean)</option>
+          <option value="prime5">Prime 5 (richer)</option>
+          <option value="grid4">Grid 4 (op-art)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label>Loop period T (seconds)</label>
+      <div><input id="T" type="range" min="4" max="60" step="1" value="24"><output id="To">24</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Spatial scale (frequency multiplier)</label>
+      <div><input id="ss" type="range" min="0.35" max="3.0" step="0.01" value="1.15"><output id="sso">1.15</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Quantization steps (hard edges)</label>
+      <div><input id="qs" type="range" min="4" max="64" step="1" value="24"><output id="qso">24</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Index shift strength (colors move)</label>
+      <div><input id="is" type="range" min="0" max="48" step="1" value="18"><output id="iso">18</output></div>
+    </div>
+
+    
+    <div class="ctl">
+      <label>Packets (constant pulses)</label>
+      <div><input id="pk" type="range" min="0" max="1.0" step="0.01" value="0.75"><output id="pko">0.75</output></div>
+    </div>
+<div class="ctl">
+      <label>Dither (breaks banding)</label>
+      <div><input id="di" type="range" min="0" max="1.0" step="0.01" value="0.16"><output id="dio">0.16</output></div>
+    </div>
+
+    <div class="ctl">
+      <label>Palette drift (slow hue evolution)</label>
+      <div><input id="pd" type="range" min="0" max="1.0" step="0.01" value="0.18"><output id="pdo">0.18</output></div>
+    </div>
+
+    <div class="btnrow">
+      <button id="reshuffle">Re-seed</button>
+      <button id="copy">Copy JSON</button>
+      <button id="paste">Paste JSON</button>
+    </div>
+
+    
+    <div class="ctl">
+      <label>Micro jitter (reduces “anchored” plateaus)</label>
+      <div><input id="mj" type="range" min="0" max="1.0" step="0.01" value="0.22"><output id="mjo">0.22</output></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="ctl">
+      <label>Audio (procedural, loop-locked)</label>
+      <div class="row2">
+        <label class="chk"><input id="aud" type="checkbox"> <span>Enable</span></label>
+        <button id="audTest" class="ghost" type="button">Ping</button>
+      </div>
+      <div class="sub">
+        <div><span class="mini">Volume</span><input id="av" type="range" min="0" max="1" step="0.01" value="0.22"><output id="avo">0.22</output></div>
+        <div><span class="mini">Coupling</span><input id="ac" type="range" min="0" max="1" step="0.01" value="0.55"><output id="aco">0.55</output></div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="btnrow">
+      <button id="snap">Snapshot PNG (S)</button>
+      <button id="rec" class="ghost">Record 1× Loop (R)</button>
+    </div>
+
+
+    <div class="tiny">
+      Keep K low. Let <b>quantization</b> + <b>64-color constraint</b> carry the piece.
+      Try: Brutal 3, steps 20–28, strength 14–24.
+    </div>
+  </div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const TAU = Math.PI * 2;
+
+  const canvas = $("c");
+  const gl = canvas.getContext("webgl2", { antialias:false, alpha:false, premultipliedAlpha:false, preserveDrawingBuffer:true });
+
+  // Export canvas (2D) for reliable PNG + video capture at display resolution.
+  const exportCanvas = document.createElement("canvas");
+  const exportCtx = exportCanvas.getContext("2d", { alpha: false, desynchronized: true });
+  function blitToExportCanvas(){
+    const dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
+    const w = Math.max(1, Math.round(window.innerWidth * dpr));
+    const h = Math.max(1, Math.round(window.innerHeight * dpr));
+    if (exportCanvas.width !== w || exportCanvas.height !== h){
+      exportCanvas.width = w; exportCanvas.height = h;
+    }
+    exportCtx.imageSmoothingEnabled = false;
+    exportCtx.clearRect(0,0,w,h);
+    // Scale the low-res GL canvas up with nearest-neighbor so it matches what you see.
+    exportCtx.drawImage(canvas, 0, 0, w, h);
+    return exportCanvas;
+  }
+  if (!gl) { alert("WebGL2 not supported in this browser."); return; }
+
+  const vs = `#version 300 es
+  precision highp float;
+  void main() {
+    vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+    gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+  }`;
+
+  const fs = `#version 300 es
+  precision highp float;
+
+  uniform vec2  uRes;
+  uniform float uTime;
+
+  uniform float uGrid;
+  uniform float uSeed;
+  uniform float uHueSpread;
+  uniform float uGridLines;
+  uniform float uGridOffset;
+
+  uniform int   uPreset;
+  uniform float uLoopT;
+  uniform float uSpatialScale;
+  uniform float uQuantSteps;
+  uniform float uIndexStrength;
+  uniform float uDither;
+  uniform float uMicroJitter;
+  uniform float uPalDrift;
+  uniform float uPackets;
+
+  uniform float uLBase;
+  uniform float uLVar;
+  uniform float uCBase;
+  uniform float uCVar;
+  uniform float uHueShift;
+  uniform float uTone;
+  uniform float uPads;
+
+  out vec4 outColor;
+
+  const float TAU = 6.28318530718;
+
+  float hash12(vec2 p){
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+  }
+  float hash11(float x){
+    x = fract(x * 0.1031);
+    x *= x + 33.33;
+    x *= x + x;
+    return fract(x);
+  }
+
+  vec3 oklab_to_linear_srgb(vec3 c) {
+    float L = c.x;
+    float a = c.y;
+    float b = c.z;
+
+    float l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    float m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    float s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+
+    float l = l_*l_*l_;
+    float m = m_*m_*m_;
+    float s = s_*s_*s_;
+
+    return vec3(
+      +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+      -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+    );
+  }
+  vec3 linear_to_srgb(vec3 c){
+    c = max(c, vec3(0.0));
+    vec3 lo = 12.92 * c;
+    vec3 hi = 1.055 * pow(c, vec3(1.0/2.4)) - 0.055;
+    return mix(lo, hi, step(vec3(0.0031308), c));
+  }
+  vec3 oklch_to_srgb(float L, float C, float h){
+    float hr = radians(h);
+    vec3 lab = vec3(L, C * cos(hr), C * sin(hr));
+    vec3 rgbLin = oklab_to_linear_srgb(lab);
+    return clamp(linear_to_srgb(rgbLin), 0.0, 1.0);
+  }
+
+  vec3 palette64(float idx01, float hueShiftDyn){
+    float i = floor(idx01 * 64.0);
+    float phi = 0.61803398875;
+
+    float h = hueShiftDyn + 360.0 * fract(i * phi * uHueSpread + 0.13 * uSeed);
+    float Li = uLBase + uLVar * (hash11(i*19.17 + uSeed*71.1) - 0.5);
+    float Ci = uCBase + uCVar * (hash11(i*7.31  + uSeed*29.7) - 0.5);
+
+    Li = clamp(Li, 0.30, 0.92);
+    Ci = clamp(Ci, 0.0, 0.30);
+
+    vec3 col = oklch_to_srgb(Li, Ci, h);
+
+    float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+    col = mix(col, mix(vec3(lum), col, 0.82), 1.0 - uTone);
+    col = mix(col, vec3(lum), uTone * 0.10);
+
+    return col;
+  }
+
+  vec4 tiling(vec2 uv){
+    vec2 off = vec2(uGridOffset, uGridOffset * 0.73);
+    vec2 g = (uv + off) * uGrid;
+
+    vec2 cell = floor(g);
+    vec2 f = fract(g);
+
+    float cellId = cell.x + cell.y * 4096.0;
+
+    float r = hash12(cell + uSeed*100.0);
+    float pat = floor(r * 6.0);
+
+    float a = hash12(cell + 11.7 + uSeed*43.1);
+    float b = hash12(cell + 27.3 + uSeed*19.3);
+
+    float rectId = 0.0;
+
+    if (pat < 1.0){
+      float n = 2.0 + floor(a*5.0);
+      float x = floor(f.x * n);
+      rectId = x;
+    } else if (pat < 2.0){
+      float n = 2.0 + floor(a*5.0);
+      float y = floor(f.y * n);
+      rectId = 10.0 + y;
+    } else if (pat < 3.0){
+      vec2 q = floor(f * vec2(3.0, 2.0));
+      rectId = 20.0 + q.x + q.y*3.0;
+    } else if (pat < 4.0){
+      vec2 q = floor(f * 2.0);
+      rectId = 30.0 + q.x + q.y*2.0;
+      float m = floor(b*4.0);
+      rectId = (floor(rectId-30.0) == m) ? 30.0 + mod(m + 1.0, 4.0) : rectId;
+    } else if (pat < 5.0){
+      float cut = 0.52 + 0.28*(a-0.5);
+      if (f.x < cut && f.y < cut) rectId = 40.0;
+      else if (f.x >= cut)        rectId = 41.0;
+      else                        rectId = 42.0;
+    } else {
+      vec2 q = floor(f * 4.0);
+      rectId = 50.0 + q.x + q.y*4.0;
+    }
+
+    float padRoll = hash11(cellId*0.0017 + rectId*0.073 + uSeed*9.1);
+    float pad = step(1.0 - uPads, padRoll);
+
+    float w = mix(0.0, 0.040, uGridLines);
+    float lines = 0.0;
+    if (w > 0.0){
+      lines += step(f.x, w);
+      lines += step(f.y, w);
+      lines += step(1.0-w, f.x);
+      lines += step(1.0-w, f.y);
+      lines = clamp(lines, 0.0, 1.0);
+    }
+
+    return vec4(cellId, rectId, pad, lines);
+  }
+
+  float interference(vec2 xy, float tLoop){
+    float T = max(uLoopT, 0.001);
+    float t = mod(tLoop, T);
+    float S = uSpatialScale;
+
+    float x = (xy.x - 0.5) * 2.0;
+    float y = (xy.y - 0.5) * 2.0;
+
+    float I = 0.0;
+    float A = 0.0;
+
+    if (uPreset == 0){
+      vec4 k0 = vec4(1.0, 0.0, 1.0, 0.52); float ph0 = 0.3;
+      vec4 k1 = vec4(0.0, 1.0, 2.0, 0.34); float ph1 = 1.1;
+      vec4 k2 = vec4(1.0, 1.0, 3.0, 0.28); float ph2 = 2.4;
+
+      float w0 = TAU * (k0.z / T);
+      float w1 = TAU * (k1.z / T);
+      float w2 = TAU * (k2.z / T);
+
+      I += k0.w*sin(TAU*(S*(k0.x*x + k0.y*y)) + w0*t + ph0); A += abs(k0.w);
+      I += k1.w*sin(TAU*(S*(k1.x*x + k1.y*y)) + w1*t + ph1); A += abs(k1.w);
+      I += k2.w*sin(TAU*(S*(k2.x*x + k2.y*y)) + w2*t + ph2); A += abs(k2.w);
+
+    } else if (uPreset == 1){
+      vec4 k0 = vec4(1.0, 0.0, 1.0, 0.38); float ph0 = 0.2;
+      vec4 k1 = vec4(0.0, 1.0, 2.0, 0.30); float ph1 = 1.5;
+      vec4 k2 = vec4(1.0, 1.0, 3.0, 0.26); float ph2 = 2.2;
+      vec4 k3 = vec4(2.0, 1.0, 5.0, 0.18); float ph3 = 0.9;
+      vec4 k4 = vec4(1.0, 2.0, 7.0, 0.14); float ph4 = 2.9;
+
+      float w0 = TAU * (k0.z / T);
+      float w1 = TAU * (k1.z / T);
+      float w2 = TAU * (k2.z / T);
+      float w3 = TAU * (k3.z / T);
+      float w4 = TAU * (k4.z / T);
+
+      I += k0.w*sin(TAU*(S*(k0.x*x + k0.y*y)) + w0*t + ph0); A += abs(k0.w);
+      I += k1.w*sin(TAU*(S*(k1.x*x + k1.y*y)) + w1*t + ph1); A += abs(k1.w);
+      I += k2.w*sin(TAU*(S*(k2.x*x + k2.y*y)) + w2*t + ph2); A += abs(k2.w);
+      I += k3.w*sin(TAU*(S*(k3.x*x + k3.y*y)) + w3*t + ph3); A += abs(k3.w);
+      I += k4.w*sin(TAU*(S*(k4.x*x + k4.y*y)) + w4*t + ph4); A += abs(k4.w);
+
+    } else {
+      vec4 k0 = vec4(1.0, 0.0, 1.0, 0.34); float ph0 = 0.4;
+      vec4 k1 = vec4(0.0, 1.0, 1.0, 0.34); float ph1 = 1.2;
+      vec4 k2 = vec4(1.0, 1.0, 2.0, 0.22); float ph2 = 2.0;
+      vec4 k3 = vec4(1.0,-1.0, 3.0, 0.18); float ph3 = 0.7;
+
+      float w0 = TAU * (k0.z / T);
+      float w1 = TAU * (k1.z / T);
+      float w2 = TAU * (k2.z / T);
+      float w3 = TAU * (k3.z / T);
+
+      I += k0.w*sin(TAU*(S*(k0.x*x + k0.y*y)) + w0*t + ph0); A += abs(k0.w);
+      I += k1.w*sin(TAU*(S*(k1.x*x + k1.y*y)) + w1*t + ph1); A += abs(k1.w);
+      I += k2.w*sin(TAU*(S*(k2.x*x + k2.y*y)) + w2*t + ph2); A += abs(k2.w);
+      I += k3.w*sin(TAU*(S*(k3.x*x + k3.y*y)) + w3*t + ph3); A += abs(k3.w);
+    }
+
+    if (A > 0.0) I /= A;
+    return clamp(I, -1.0, 1.0);
+  }
+
+  void main(){
+    vec2 uv = gl_FragCoord.xy / uRes;
+    vec2 pix = floor(gl_FragCoord.xy);
+
+    vec4 t = tiling(uv);
+    float cellId = t.x;
+    float rectId = t.y;
+    float pad    = t.z;
+    float lines  = t.w;
+
+    float baseK = hash11(cellId*0.0021 + rectId*0.091 + 13.37 + uSeed*5.0);
+    float baseIdx = floor(baseK * 64.0);
+
+    float T = max(uLoopT, 0.001);
+    float tN = mod(uTime, T) / T;
+
+    float I = interference(uv, uTime);
+
+    // MACRO: 2-regime envelope per loop (calm / inevitable).
+    float macro = 0.5 - 0.5*cos(TAU * tN);          // 0..1
+    macro = smoothstep(0.08, 0.92, macro);          // soft plateaus
+
+    float steps = max(uQuantSteps, 1.0);
+    steps = mix(steps * 1.10, steps * 0.90, macro); // subtle macro quant shift
+
+    float d0 = (hash12(pix + vec2(uSeed*1000.0, 19.3)) - 0.5);
+    float d = d0 * (uDither / steps) * 2.0;
+
+    // Micro jitter: time-varying (loop-locked) threshold agitation to prevent “anchored” plateaus.
+    float tv = floor(tN * 16.0); // 16 changes per loop, hard-perfect
+    float d1 = (hash12(pix + vec2(uSeed*1000.0 + 101.0*tv, 73.1)) - 0.5);
+    float mj = d1 * (uMicroJitter / steps) * 2.0;
+    float In = clamp(0.5 + 0.5*I + d + mj, 0.0, 1.0);
+
+    float q = floor(In * steps) / steps;
+
+    float strength = max(uIndexStrength, 0.0);
+    strength *= mix(0.80, 1.15, macro);            // macro pushes re-indexing
+
+    // MESO: constant packet pulses per cell (deterministic, loop-perfect).
+    float pk = clamp(uPackets, 0.0, 1.0);
+    if (pk > 0.001){
+      float ph1 = hash11(cellId*0.013 + rectId*0.071 + uSeed*11.0);
+      float ph2 = hash11(cellId*0.031 + rectId*0.119 + uSeed*17.0);
+      float s = 0.6*sin(TAU * (4.0*tN + ph1)) + 0.4*sin(TAU * (8.0*tN + ph2)); // [-1..1]
+      float w = clamp(0.5 + 0.5*s, 0.0, 1.0);
+      w = 0.65 + 0.35*pow(w, 1.7);                 // never idle (constant chatter)
+      strength *= mix(1.0, w, pk);
+    }
+
+    float off = floor((q - 0.5) * 2.0 * strength);
+
+    float bias = (hash11(cellId*0.0019 + rectId*0.071 + uSeed*9.0) - 0.5) * 0.35;
+    float off2 = floor((q + bias - 0.5) * 2.0 * (0.35*strength));
+
+    float idx = mod(baseIdx + off + off2, 64.0);
+    float idx01 = idx / 64.0;
+
+    float hueShiftDyn = uHueShift;
+    float drift = uPalDrift;
+    if (drift > 0.0){
+      hueShiftDyn += 30.0 * drift * sin(TAU * (3.0*tN));
+      hueShiftDyn += 18.0 * drift * sin(TAU * (5.0*tN + 0.13));
+    }
+
+    vec3 col = palette64(idx01, hueShiftDyn);
+
+    if (pad > 0.5){
+      float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+      col = mix(col, vec3(lum), 0.45);
+      col *= 0.70;
+    }
+
+    if (lines > 0.0){
+      col = mix(col, col * 0.80 + vec3(0.03, 0.04, 0.05), lines);
+    }
+
+    outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+  }`;
+
+  function compile(type, src){
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)){
+      const log = gl.getShaderInfoLog(sh);
+      gl.deleteShader(sh);
+      throw new Error(log || "Shader compile failed");
+    }
+    return sh;
+  }
+  function program(vsSrc, fsSrc){
+    const p = gl.createProgram();
+    gl.attachShader(p, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)){
+      const log = gl.getProgramInfoLog(p);
+      gl.deleteProgram(p);
+      throw new Error(log || "Program link failed");
+    }
+    return p;
+  }
+
+  const prog = program(vs, fs);
+  const U = {
+    res: gl.getUniformLocation(prog, "uRes"),
+    time: gl.getUniformLocation(prog, "uTime"),
+    grid: gl.getUniformLocation(prog, "uGrid"),
+    seed: gl.getUniformLocation(prog, "uSeed"),
+    hueSpread: gl.getUniformLocation(prog, "uHueSpread"),
+    gridLines: gl.getUniformLocation(prog, "uGridLines"),
+    gridOffset: gl.getUniformLocation(prog, "uGridOffset"),
+
+    preset: gl.getUniformLocation(prog, "uPreset"),
+    loopT: gl.getUniformLocation(prog, "uLoopT"),
+    spatialScale: gl.getUniformLocation(prog, "uSpatialScale"),
+    quantSteps: gl.getUniformLocation(prog, "uQuantSteps"),
+    indexStrength: gl.getUniformLocation(prog, "uIndexStrength"),
+    dither: gl.getUniformLocation(prog, "uDither"),
+    microJitter: gl.getUniformLocation(prog, "uMicroJitter"),
+    palDrift: gl.getUniformLocation(prog, "uPalDrift"),
+    packets: gl.getUniformLocation(prog, "uPackets"),
+
+    LBase: gl.getUniformLocation(prog, "uLBase"),
+    LVar: gl.getUniformLocation(prog, "uLVar"),
+    CBase: gl.getUniformLocation(prog, "uCBase"),
+    CVar: gl.getUniformLocation(prog, "uCVar"),
+    hueShift: gl.getUniformLocation(prog, "uHueShift"),
+    tone: gl.getUniformLocation(prog, "uTone"),
+    pads: gl.getUniformLocation(prog, "uPads"),
+  };
+
+  const PALETTES = {
+    muted_tech:  { LBase:0.66, LVar:0.20, CBase:0.10, CVar:0.10, hueShift:210, tone:0.70, pads:0.16 },
+    pastel_clean:{ LBase:0.76, LVar:0.22, CBase:0.11, CVar:0.10, hueShift:300, tone:0.45, pads:0.12 },
+    cmyk_soft:   { LBase:0.72, LVar:0.22, CBase:0.13, CVar:0.11, hueShift:330, tone:0.40, pads:0.10 },
+    teal_amber:  { LBase:0.64, LVar:0.18, CBase:0.12, CVar:0.10, hueShift:200, tone:0.78, pads:0.16 },
+    mono_cyan:   { LBase:0.64, LVar:0.18, CBase:0.08, CVar:0.05, hueShift:205, tone:0.88, pads:0.20 },
+    earthy:      { LBase:0.62, LVar:0.18, CBase:0.09, CVar:0.08, hueShift:35,  tone:0.78, pads:0.16 },
+    neon:        { LBase:0.70, LVar:0.22, CBase:0.20, CVar:0.18, hueShift:280, tone:0.18, pads:0.08 },
+    greyscale:   { LBase:0.68, LVar:0.22, CBase:0.00, CVar:0.00, hueShift:0,   tone:0.95, pads:0.24 },
+    archive_paper:{ LBase:0.82, LVar:0.12, CBase:0.04, CVar:0.03, hueShift:55,  tone:0.92, pads:0.18 },
+    cold_terminal:{ LBase:0.62, LVar:0.16, CBase:0.06, CVar:0.04, hueShift:205, tone:0.88, pads:0.18 },
+    heatmap_disc:{ LBase:0.66, LVar:0.16, CBase:0.09, CVar:0.06, hueShift:210, tone:0.74, pads:0.14 },
+  };
+
+  const PRESETS = { brutal3:0, prime5:1, grid4:2 };
+
+  const state = {
+    started:false, paused:false, mode:"studio",
+    tStart:0, tPausedAccum:0, tPauseStart:0,
+    px:8, grid:96, pal:"muted_tech", hueSpread:1.00, seed:0.123,
+    gridLines:0.06, gridOffset:0.383,
+    preset:"brutal3", T:24, spatialScale:1.15, quantSteps:24, indexStrength:18, dither:0.16, palDrift:0.18, packets:0.75
+  };
+
+  const hud = $("hud");
+
+  function syncUI(){
+    const map = [["px","pxo",0],["gd","gdo",0],["hs","hso",2],["seed","seedo",3],["gl","glo",2],["go","goo",3],
+                 ["T","To",0],["ss","sso",2],["qs","qso",0],["is","iso",0],["pk","pko",2],["di","dio",2],["mj","mjo",2],["pd","pdo",2],["av","avo",2],["ac","aco",2]];
+    for (const [id, oid, dec] of map){
+      const v = +$(id).value; $(oid).textContent = v.toFixed(dec);
+    }
+  }
+  function readUI(){
+    state.px = +$("px").value; state.grid = +$("gd").value; state.pal = $("pal").value;
+    state.hueSpread = +$("hs").value; state.seed = +$("seed").value;
+    state.gridLines = +$("gl").value; state.gridOffset = +$("go").value;
+    state.preset = $("preset").value; state.T = +$("T").value; state.spatialScale = +$("ss").value;
+    state.quantSteps = +$("qs").value; state.indexStrength = +$("is").value; state.packets = +$("pk").value;
+    state.dither = +$("di").value; state.microJitter = +$("mj").value; state.palDrift = +$("pd").value;
+    state.audioVol = +$("av").value; state.audioCouple = +$("ac").value; state.audioOn = $("aud").checked;
+  }
+
+  function resize(){
+    const px = Math.max(2, Math.floor(state.px));
+    // Use CEIL so the canvas always fully covers the viewport.
+    const w = Math.max(64, Math.ceil(window.innerWidth / px));
+    const h = Math.max(64, Math.ceil(window.innerHeight / px));
+
+    canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h);
+
+    // Set CSS size to exact integer pixels to avoid edge shimmer from fractional scaling.
+    canvas.style.width = (w * px) + "px";
+    canvas.style.height = (h * px) + "px";
+  }
+
+  function applyUniforms(t){
+    const p = PALETTES[state.pal] || PALETTES.muted_tech;
+    gl.useProgram(prog);
+    gl.uniform2f(U.res, canvas.width, canvas.height);
+    gl.uniform1f(U.time, t);
+
+    gl.uniform1f(U.grid, state.grid);
+    gl.uniform1f(U.seed, state.seed);
+    gl.uniform1f(U.hueSpread, state.hueSpread);
+    gl.uniform1f(U.gridLines, state.gridLines);
+    gl.uniform1f(U.gridOffset, state.gridOffset);
+
+    gl.uniform1i(U.preset, PRESETS[state.preset] ?? 0);
+    gl.uniform1f(U.loopT, state.T);
+    gl.uniform1f(U.spatialScale, state.spatialScale);
+    gl.uniform1f(U.quantSteps, state.quantSteps);
+    gl.uniform1f(U.indexStrength, state.indexStrength);
+    gl.uniform1f(U.packets, state.packets);
+
+    gl.uniform1f(U.dither, state.dither);
+    gl.uniform1f(U.microJitter, state.microJitter ?? 0.0);
+    gl.uniform1f(U.palDrift, state.palDrift);
+
+    gl.uniform1f(U.LBase, p.LBase); gl.uniform1f(U.LVar, p.LVar);
+    gl.uniform1f(U.CBase, p.CBase); gl.uniform1f(U.CVar, p.CVar);
+    gl.uniform1f(U.hueShift, p.hueShift); gl.uniform1f(U.tone, p.tone);
+    gl.uniform1f(U.pads, p.pads);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  function render(t){
+    if (!state.started) return;
+    readUI();
+    applyUniforms(t);
+    hud.textContent = `DATA_SCRAPE 64 OKLCH  px=${state.px}px  grid=${state.grid}  preset=${state.preset}  T=${state.T}s  scale=${state.spatialScale.toFixed(2)}  steps=${state.quantSteps}  strength=${state.indexStrength}  dither=${state.dither.toFixed(2)}  drift=${state.palDrift.toFixed(2)}  seed=${state.seed.toFixed(3)}  ${state.paused ? "PAUSED" : ""}`;
+  }
+
+  function loop(now){
+    if (!state.started || state.paused) return;
+    const t = (now - state.tStart - state.tPausedAccum) * 0.001;
+    render(t);
+    if (recordingBlit) blitToExportCanvas();
+    if (audio.running) updateAudioTimbre(t);
+    requestAnimationFrame(loop);
+  }
+
+  const controls = ["px","gd","pal","hs","seed","gl","go","preset","T","ss","qs","is","pk","di","mj","pd","av","ac"];
+  for (const id of controls){
+    $(id).addEventListener("input", () => { syncUI(); readUI(); if (id === "px") resize(); if (id === "av") setAudioGain(); if (state.started) render(0.0); });
+    $(id).addEventListener("change", () => { syncUI(); readUI(); if (id === "av") setAudioGain(); if (state.started) render(0.0); });
+  }
+
+  // Extra UI (non-range)
+  $("aud").addEventListener("change", () => { readUI(); syncUI(); if (state.started) { if ($("aud").checked) ensureAudio(); else stopAudio(); } });
+  $("snap").addEventListener("click", () => { if (state.mode === "studio") snapshotPNG(); });
+  $("rec").addEventListener("click", () => { if (state.mode === "studio") recordOneLoop(); });
+  $("audTest").addEventListener("click", () => { if (state.mode === "studio") { ensureAudio(); audioPingNow(); } });
+
+  $("reshuffle").addEventListener("click", () => {
+    $("seed").value = (Math.random()).toFixed(3);
+    $("go").value = (Math.random()).toFixed(3);
+    syncUI(); readUI(); if (state.started) render(0.0);
+  });
+
+  $("copy").addEventListener("click", async () => {
+    const json = JSON.stringify({
+      px: state.px, grid: state.grid, pal: state.pal, hueSpread: state.hueSpread,
+      seed: state.seed, gridLines: state.gridLines, gridOffset: state.gridOffset,
+      preset: state.preset, T: state.T, spatialScale: state.spatialScale,
+      quantSteps: state.quantSteps, indexStrength: state.indexStrength,
+      packets: state.packets,
+      dither: state.dither, palDrift: state.palDrift
+    }, null, 2);
+    try { await navigator.clipboard.writeText(json); } catch {}
+  });
+
+  $("paste").addEventListener("click", async () => {
+    let txt = ""; try { txt = await navigator.clipboard.readText(); } catch {}
+    if (!txt) return;
+    try {
+      const j = JSON.parse(txt);
+      const set = (id, v) => { if (v != null) $(id).value = String(v); };
+      set("px", j.px); set("gd", j.grid); set("pal", j.pal); set("hs", j.hueSpread);
+      set("seed", j.seed); set("gl", j.gridLines); set("go", j.gridOffset);
+      set("preset", j.preset); set("T", j.T); set("ss", j.spatialScale);
+      set("qs", j.quantSteps); set("is", j.indexStrength); set("pk", j.packets);
+      set("di", j.dither); set("pd", j.palDrift);
+      syncUI(); readUI(); resize(); if (state.started) render(0.0);
+    } catch {}
+  });
+
+    function showGate(){
+    $("gate").style.display = "grid";
+  }
+  function hideGate(){
+    $("gate").style.display = "none";
+  }
+  function setKiosk(on){
+    document.body.classList.toggle("kiosk", !!on);
+  }
+  function enterFullscreen(){
+    const el = document.documentElement;
+    if (!document.fullscreenElement && el.requestFullscreen){
+      el.requestFullscreen().catch(()=>{});
+    }
+  }
+  function exitFullscreen(){
+    if (document.fullscreenElement && document.exitFullscreen){
+      document.exitFullscreen().catch(()=>{});
+    }
+  }
+  function startRun(kind){
+    state.mode = kind; // "kiosk" | "studio"
+    hideGate();
+    state.started = true;
+    state.paused = false;
+    state.tStart = performance.now();
+    state.tPausedAccum = 0;
+    state.tPauseStart = 0;
+
+    if (kind === "kiosk"){
+      setKiosk(true);
+      enterFullscreen(); // must be user-gesture initiated
+      $("dev").style.display = "none";
+    } else {
+      setKiosk(false);
+    }
+
+    // Audio can only start after a user gesture.
+    if ($("aud").checked) ensureAudio(); else stopAudio();
+
+    resize(); syncUI(); readUI(); render(0.0);
+    requestAnimationFrame(loop);
+  }
+
+  function stopToGate(){
+    state.started = false;
+    state.paused = false;
+    if (state.mode === "kiosk") exitFullscreen();
+    setKiosk(false);
+    $("dev").style.display = "none";
+    $("help").style.display = "none";
+    stopAudio();
+    document.body.classList.remove("uiHidden");
+    showGate();
+  }
+
+  $("kioskBtn").addEventListener("click", () => startRun("kiosk"));
+  $("studioBtn").addEventListener("click", () => startRun("studio"));
+  $("helpBtn").addEventListener("click", () => { $("help").style.display = "grid"; });
+  $("helpClose").addEventListener("click", () => { $("help").style.display = "none"; });
+  // ----------------------------
+  // Exports
+  // ----------------------------
+  
+function snapshotPNG(){
+  try{
+    const out = blitToExportCanvas();
+    out.toBlob((blob) => {
+      if (!blob) return;
+      const a = document.createElement("a");
+      const ts = new Date().toISOString().replace(/[:.]/g,"-");
+      a.download = `data_scrape_${ts}.png`;
+      a.href = URL.createObjectURL(blob);
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    }, "image/png");
+  }catch(err){
+    console.warn("PNG export failed", err);
+  }
+}
+
+  // ----------------------------
+  // Procedural audio (loop-locked)
+  // ----------------------------
+  
+const audio = {
+    ctx: null,
+    master: null,
+    dest: null,
+
+    src: null,
+    hp: null,
+    bp: null,
+    comp: null,
+
+    running: false,
+    startSim: 0,
+    startAudio: 0,
+  };
+
+  function simNow(){
+    const now = performance.now();
+    return (now - state.tStart - state.tPausedAccum) * 0.001;
+  }
+
+  function makeLoopedNoiseBuffer(ctx, seconds){
+    const sr = ctx.sampleRate;
+    const N = Math.max(1, Math.floor(seconds * sr));
+    const buf = ctx.createBuffer(1, N, sr);
+    const d = buf.getChannelData(0);
+
+    // White noise with a gentle start/end crossfade to avoid boundary clicks.
+    for (let i=0;i<N;i++){
+      d[i] = (Math.random()*2-1);
+    }
+    const xf = Math.min(Math.floor(0.01*sr), Math.floor(N/8)); // 10ms
+    for (let i=0;i<xf;i++){
+      const a = i/xf;
+      // fade-in at start, fade-out at end
+      d[i] *= a;
+      d[N-1-i] *= a;
+      // also blend end into start for cyclic continuity
+      d[i] = d[i]*(1-a) + d[N-1-i]*a;
+    }
+    return buf;
+  }
+
+  function ensureAudio(){
+    if (audio.running) return;
+    const want = $("aud")?.checked;
+    if (!want) return;
+
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) { console.warn("Web Audio not supported"); return; }
+
+    if (!audio.ctx) audio.ctx = new Ctx();
+    if (audio.ctx.state === "suspended") audio.ctx.resume().catch(()=>{});
+
+    // Master gain (constant; no macro volume swing)
+    audio.master = audio.ctx.createGain();
+    audio.master.gain.value = Math.max(0.0, parseFloat($("av").value || "0.08"));
+
+    // Destination for recording (optional)
+    audio.dest = audio.ctx.createMediaStreamDestination();
+
+    // Static noise bed
+    const noiseBuf = makeLoopedNoiseBuffer(audio.ctx, 2.0);
+    audio.src = audio.ctx.createBufferSource();
+    audio.src.buffer = noiseBuf;
+    audio.src.loop = true;
+
+    // Filters to make "data static tone" (tighter, not harsh)
+    audio.hp = audio.ctx.createBiquadFilter();
+    audio.hp.type = "highpass";
+    audio.hp.frequency.value = 90;
+
+    audio.bp = audio.ctx.createBiquadFilter();
+    audio.bp.type = "bandpass";
+    audio.bp.frequency.value = 950;
+    audio.bp.Q.value = 0.65;
+
+    // Compressor to tighten amplitude range (keeps it even)
+    audio.comp = audio.ctx.createDynamicsCompressor();
+    audio.comp.threshold.value = -28;
+    audio.comp.knee.value = 12;
+    audio.comp.ratio.value = 10;
+    audio.comp.attack.value = 0.003;
+    audio.comp.release.value = 0.08;
+
+    audio.src.connect(audio.hp);
+    audio.hp.connect(audio.bp);
+    audio.bp.connect(audio.comp);
+    audio.comp.connect(audio.master);
+    audio.master.connect(audio.ctx.destination);
+    audio.master.connect(audio.dest);
+
+    audio.src.start();
+
+    // Align audio clock to sim clock (for loop-locked timbre modulation)
+    audio.startSim = simNow();
+    audio.startAudio = audio.ctx.currentTime;
+
+    audio.running = true;
+  }
+
+  function stopAudio(){
+    if (!audio.running) return;
+    try{ audio.src.stop(); }catch(e){}
+    try{ audio.src.disconnect(); }catch(e){}
+    audio.src = null;
+    audio.running = false;
+  }
+
+  function setAudioGain(){
+    if (!audio.running || !audio.master) return;
+    const v = Math.max(0.0, parseFloat($("av").value || "0.08"));
+    // small smoothing to avoid zipper noise
+    audio.master.gain.setTargetAtTime(v, audio.ctx.currentTime, 0.02);
+  }
+
+  // Optional test: a tiny "tick" without changing overall loudness.
+  function audioPingNow(){
+    if (!audio.running || !audio.master) return;
+    const now = audio.ctx.currentTime;
+    const g = audio.master.gain;
+    const v = g.value;
+    g.setValueAtTime(v, now);
+    g.linearRampToValueAtTime(Math.min(v * 1.12, v + 0.01), now + 0.01);
+    g.linearRampToValueAtTime(v, now + 0.08);
+  }
+
+  // Couple timbre (NOT volume) to the 2-regime macro envelope. Hard-perfect.
+  function updateAudioTimbre(t){
+    if (!audio.running || !audio.bp) return;
+    const T = Math.max(state.T, 0.001);
+    const ph = ((t % T) + T) % T / T;
+    const macro = 0.5 - 0.5 * Math.cos(TAU * ph); // 0..1 over loop (two regimes read)
+    const base = 850;
+    const span = 450; // subtle brightness swing; constant loudness
+    const target = base + span * macro;
+    audio.bp.frequency.setTargetAtTime(target, audio.ctx.currentTime, 0.05);
+  }
+// ----------------------------
+  // Record exactly 1 loop (seamless) as WebM; includes audio if enabled.
+  // ----------------------------
+  let recording = false;
+  let recordingBlit = false;
+  async function recordOneLoop(){
+    if (recording) return;
+    if (state.mode !== "studio") return;
+    recording = true;
+    recordingBlit = true;
+
+    try{
+      // Ensure audio if checkbox enabled
+      if ($("aud").checked) ensureAudio();
+
+      const fps = 60;
+      const outCanvas = blitToExportCanvas();
+      const vStream = outCanvas.captureStream(fps);
+      const tracks = [...vStream.getVideoTracks()];
+
+      if (audio.running && audio.dest){
+        const aTracks = audio.dest.stream.getAudioTracks();
+        if (aTracks && aTracks.length) tracks.push(aTracks[0]);
+      }
+      const stream = new MediaStream(tracks);
+
+      let mime = "";
+      if (MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")) mime = "video/webm;codecs=vp9,opus";
+      else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")) mime = "video/webm;codecs=vp8,opus";
+      else mime = "video/webm";
+
+      const mimeCandidates = [
+        "video/webm;codecs=vp9,opus",
+        "video/webm;codecs=vp8,opus",
+        "video/webm;codecs=vp9",
+        "video/webm;codecs=vp8",
+        "video/webm"
+      ];
+      const mimeType = (window.MediaRecorder && MediaRecorder.isTypeSupported)
+        ? (mimeCandidates.find(m => MediaRecorder.isTypeSupported(m)) || "")
+        : "";
+      const recOpts = {};
+      if (mimeType) recOpts.mimeType = mimeType;
+      recOpts.videoBitsPerSecond = 6_000_000;
+      recOpts.audioBitsPerSecond = 160_000;
+      const rec = new MediaRecorder(stream, recOpts);
+      const chunks = [];
+      rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+
+      const T = Math.max(state.T, 0.001);
+      const eps = 1/120;
+
+      // Wait for the next loop boundary (phase = 0)
+      const startTarget = Math.ceil(simNow() / T) * T;
+
+      await new Promise((resolve) => {
+        function wait(){
+          if (state.paused){ requestAnimationFrame(wait); return; }
+          if (simNow() >= startTarget - eps) resolve();
+          else requestAnimationFrame(wait);
+        }
+        wait();
+      });
+
+      const startSim = startTarget;
+      rec.start();
+
+      await new Promise((resolve) => {
+        function waitStop(){
+          if (state.paused){ requestAnimationFrame(waitStop); return; }
+          if (simNow() >= startSim + T - eps) resolve();
+          else requestAnimationFrame(waitStop);
+        }
+        waitStop();
+      });
+
+      rec.stop();
+
+      await new Promise((resolve) => { rec.onstop = resolve; });
+
+      const blob = new Blob(chunks, { type: mime });
+      const a = document.createElement("a");
+      const ts = new Date().toISOString().replace(/[:.]/g,"-");
+      a.download = `data_scrape_loop_${Math.round(T*1000)}ms_${ts}.webm`;
+      a.href = URL.createObjectURL(blob);
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+    } catch(err){
+      console.warn(err);
+      alert("Recording failed: " + (err && (err.name || err.message) ? (err.name + (err.message ? (" — " + err.message) : "")) : String(err)) + "\n\nTip: run via a local server (not file://) and keep the tab focused.");
+    } finally {
+      recordingBlit = false;
+      recording = false;
+    }
+  }
+
+addEventListener("keydown", (e) => {
+    const help = $("help");
+    const gateVisible = $("gate").style.display !== "none";
+    const inStudio = (state.mode === "studio");
+
+    if (e.key === "Escape"){
+      if (help.style.display === "grid" || help.style.display === "block"){
+        help.style.display = "none";
+        return;
+      }
+      // From run -> gate (matches your other projects)
+      if (!gateVisible) stopToGate();
+      return;
+    }
+
+    if (e.key === "?" || (e.shiftKey && e.key === "/")){
+      help.style.display = (!help.style.display || help.style.display === "none") ? "grid" : "none";
+      return;
+    }
+
+    
+    if (inStudio && (e.key === "h" || e.key === "H")){
+      document.body.classList.toggle("uiHidden");
+      return;
+    }
+
+    if (inStudio && (e.key === "s" || e.key === "S")){
+      snapshotPNG();
+      return;
+    }
+
+    if (inStudio && (e.key === "r" || e.key === "R")){
+      recordOneLoop();
+      return;
+    }
+
+    if (inStudio && (e.key === "a" || e.key === "A")){
+      const cb = $("aud");
+      cb.checked = !cb.checked;
+      if (cb.checked) ensureAudio();
+      else stopAudio();
+      syncUI(); readUI();
+      return;
+    }
+if (inStudio && (e.key === "p" || e.key === "P" || e.key === " ")){
+      // Pause without losing phase
+      state.paused = !state.paused;
+      if (state.paused){
+        state.tPauseStart = performance.now();
+        // Audio: fade down and remember pause time (keep phase mapping)
+        if (audio.running && audio.ctx){
+          audio.pauseA = audio.ctx.currentTime;
+          audio.master.gain.setTargetAtTime(0.0, audio.ctx.currentTime, 0.03);
+        }
+      } else {
+        const now = performance.now();
+        state.tPausedAccum += now - state.tPauseStart;
+        state.tPauseStart = 0;
+        // Audio: advance mapping by pause duration and fade back up
+        if (audio.running && audio.ctx){
+          const dt = audio.ctx.currentTime - (audio.pauseA || audio.ctx.currentTime);
+          audio.startAudio += dt;
+          audio.pauseA = 0;
+          scheduleAudio();
+        }
+        requestAnimationFrame(loop);
+      }
+      return;
+    }
+
+    if (inStudio && e.ctrlKey && e.shiftKey && (e.key === "D" || e.key === "d")){
+      const dev = $("dev");
+      dev.style.display = (dev.style.display === "none" || !dev.style.display) ? "block" : "none";
+      return;
+    }
+  });
+window.addEventListener("resize", () => { if (state.started) { resize(); render(0.0); } });
+
+  syncUI(); readUI(); resize();
+})();
+</script>
+</body>
+</html>
