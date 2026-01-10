@@ -47,8 +47,10 @@
       title: "Tesseract_Engine",
       year: "2026",
       type: "hyperobject",
+      medium: "Realtime procedural loop",
       desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      preview: "assets/video/tesseract_video01.webm"
+      href: "works/Tesseract_Engine/",
+      preview: "assets/video/Tesseract_Preview02.webm"
     },
     { 
       title: "DATA_SCRAPE",
