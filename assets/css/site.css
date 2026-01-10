@@ -266,6 +266,50 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   box-shadow: var(--shadow);
 }
 
+
+
+.statementRow{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+
+.statementText{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.statementText p{
+  margin: 0;
+}
+
+.headshot{
+  flex: 0 0 160px;
+  margin: 0;
+}
+
+.headshot img{
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  background: color-mix(in oklab, var(--bg) 80%, #000);
+}
+
+@media (max-width: 560px){
+  .statementRow{ flex-direction: column; }
+  .headshot img{
+    width: min(220px, 100%);
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+
+
+
 .list{margin:0; padding-left:18px}
 .list li{margin:6px 0}
 
