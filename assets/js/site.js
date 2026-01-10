@@ -24,24 +24,15 @@
       preview: "assets/video/athamal_preview.webm",
       poster: "assets/img/thumbs/athamal.jpg"
     },
-    {
-      title: "KLEE_MATION",
-      year: "2026",
-      type: "tool",
-      medium: "Realtime instrument",
-      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      href: "works/Klee_Mation/",
-      preview: "assets/video/tesseract_preview.webm",
-      poster: "assets/img/thumbs/tesseract_engine.jpg"
-    },
-    {
-      title: "Study_01: CHROMA",
+    { 
+      title: "Data_Scrape",
       year: "2026",
       type: "loop",
-      medium: "Realtime procedural field",
-      desc: "A disciplined colour-field study computed in realtime. Concentric planes contract toward a centre square; hue and luminance shift through a fixed cycle for seamless long-duration display.",
-      href: "works/ColourStudy/",
-      preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"  
+      medium: "Realtime procerdual field",
+      desc: "A tiled atmosphere of discrete states. Packets pass, thresholds click, and color reorganizes without drama—an image that feels like harvesting, indexing, and forgetting.",
+      href: "works/DataScrape/",
+      preview: "assets/video/data_scrape_loop.webm",
+      poster: "assets/img/thumbs/data_scrape_preview.png"
     },
     {
       title: "Tesseract_Engine",
@@ -52,16 +43,25 @@
       href: "works/Tesseract_Engine/",
       preview: "assets/video/Tesseract_Preview02.webm"
     },
-    { 
-      title: "Data_Scrape",
+    {
+      title: "Study_01: CHROMA",
       year: "2026",
       type: "loop",
-      medium: "Realtime procerdual field",
-      desc: "A tiled atmosphere of discrete states. Packets pass, thresholds click, and color reorganizes without drama—an image that feels like harvesting, indexing, and forgetting.",
-      href: "works/DataScrape/",
-      preview: "assets/video/data_scrape_loop.webm",
-      poster: "assets/img/thumbs/data_scrape_preview.png"
-    }
+      medium: "Realtime procedural field",
+      desc: "A disciplined colour-field study computed in realtime. Concentric planes contract toward a centre square; hue and luminance shift through a fixed cycle for seamless long-duration display.",
+      href: "works/ColourStudy/",
+      preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"  
+    },  
+    {
+      title: "KLEE_MATION",
+      year: "2026",
+      type: "tool",
+      medium: "Realtime instrument",
+      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
+      href: "works/Klee_Mation/",
+      preview: "assets/video/tesseract_preview.webm",
+      poster: "assets/img/thumbs/tesseract_engine.jpg"
+    }  
  
   ];
 
