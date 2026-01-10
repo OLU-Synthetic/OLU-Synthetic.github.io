@@ -1,0 +1,1724 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="color-scheme" content="dark"/>
+  <title>FORMAL LOOP — Studio Parameters</title>
+  <style>
+    html, body { margin:0; height:100%; background:#0b0c0e; overflow:hidden; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    canvas { display:block; width:100vw; height:100vh; }
+
+    .gate {
+      position: fixed; inset: 0;
+      display: grid; place-items: center;
+      background: rgba(11,12,14,0.92);
+      backdrop-filter: blur(10px);
+      z-index: 50;
+    }
+    .panel{
+      width:min(980px, 92vw);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      background: rgba(15,18,23,0.92);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      padding: 22px 22px 18px;
+    }
+    .topline{
+      display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .title{
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-weight: 650;
+      font-size: 13px;
+      opacity: .92;
+    }
+    .subtitle{
+      font-size: 12px;
+      opacity: .65;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .body{
+      margin-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 14px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 16px;
+    }
+    @media (max-width: 860px){
+      .body{ grid-template-columns: 1fr; }
+    }
+    .copy{
+      font-size: 13px;
+      line-height: 1.5;
+      opacity: .86;
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      opacity: .84;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(11,12,14,0.65);
+      white-space: pre-wrap;
+    }
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    button{
+      appearance:none; border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.92);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 13px;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select:none;
+    }
+    button:hover{ background: rgba(255,255,255,0.10); }
+    button.primary{
+      background: rgba(230,228,220,0.10);
+      border-color: rgba(230,228,220,0.24);
+    }
+    .warn{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,200,120,0.22);
+      background: rgba(255,200,120,0.07);
+      font-size: 12.5px;
+      line-height: 1.35;
+      opacity: .92;
+      display:none;
+    }
+    .hidden{ display:none !important; }
+    body.kiosk { cursor:none; }
+
+    .hud{
+      position: fixed; left: 14px; bottom: 12px;
+      z-index: 10;
+      display:flex; gap:10px; align-items:center;
+      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+      letter-spacing:.06em;
+      user-select:none;
+      pointer-events:none;
+      text-transform: uppercase;
+    }
+    .pill{
+      padding: 7px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(11,12,14,0.45);
+      backdrop-filter: blur(6px);
+    }
+
+    .cornerBtns{
+      position: fixed; right: 14px; bottom: 12px;
+      z-index: 20;
+      display:flex; gap:10px;
+      pointer-events:auto;
+      user-select:none;
+    }
+    .cornerBtns button{
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    /* Studio UI */
+    .studioUI{
+      position: fixed;
+      right: 14px;
+      top: 14px;
+      width: min(520px, calc(100vw - 28px));
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+      z-index: 30;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(15,18,23,0.92);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      padding: 12px 12px 10px;
+      display:none;
+      pointer-events:auto;
+    }
+    .studioUI h3{
+      margin: 4px 0 10px 0;
+      font-size: 12px;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      opacity:.92;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+    .studioUI h4{
+      margin: 14px 0 8px 0;
+      font-size: 11px;
+      letter-spacing:.16em;
+      text-transform: uppercase;
+      opacity:.78;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 10px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1.25fr 72px;
+      gap: 10px;
+      align-items:center;
+      margin: 8px 0;
+    }
+    .row label{
+      font-size: 12px;
+      opacity: .84;
+    }
+    .row input[type="range"]{
+      width:100%;
+    }
+    .val{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      opacity: .84;
+      text-align:right;
+    }
+    .smallNote{
+      font-size: 12px;
+      opacity:.7;
+      line-height: 1.35;
+      margin-top: 6px;
+    }
+    .studioActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+  
+    /* Sequencer */
+    .seqBox{
+      margin-top: 12px;
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius: 16px;
+      padding: 10px 10px 10px;
+      background: rgba(11,12,14,0.55);
+    }
+    .seqTop{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-bottom: 8px;
+    }
+    .seqTop .left{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      font-size: 12px;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      opacity:.88;
+    }
+    .toggle{
+      display:flex; align-items:center; gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+    }
+    .toggle input{ transform: translateY(1px); }
+    .seqGrid{
+      margin-top: 10px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .seqCuts{
+      margin-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 8px;
+      display:grid;
+      gap: 8px;
+    }
+    .seqCutRow{
+      display:grid;
+      grid-template-columns: 60px 1fr 72px;
+      gap: 10px;
+      align-items:center;
+    }
+    .seqCutRow .lab{
+      font-size: 12px;
+      opacity:.82;
+      text-transform: uppercase;
+      letter-spacing:.10em;
+    }
+
+</style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <div class="gate" id="gate">
+    <div class="panel">
+      <div class="topline">
+        <div>
+          <div class="title">FORMAL LOOP</div>
+          <div class="subtitle">commensurate interference · toroidal advection · exact period</div>
+        </div>
+        <div class="btns">
+          <button class="primary" id="beginKiosk">Begin — Kiosk</button>
+          <button id="beginStudio">Begin — Studio</button>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="copy">
+          <p>
+            Deterministic field on a torus. Time is reduced to unit phase τ in [0,1). All time terms are integer-multiple oscillations in τ.
+            Therefore the image is <b>exactly periodic</b> with duration <span id="tLabel"></span>.
+          </p>
+          <p>
+            Studio mode exposes a parameter surface. You can push it hard — but if you break the formal rules (non-integer frequencies),
+            you don’t get to call it a seamless loop.
+          </p>
+          <p style="opacity:.72;margin-bottom:0;">
+            Controls: <b>Esc</b> returns to gate. <b>F</b> fullscreen. <b>U</b> toggles studio UI. <b>H</b> runbook.
+          </p>
+
+          <div class="warn" id="warnBox"></div>
+        </div>
+
+        <div class="mono" id="mathBlock"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hud" id="hud">
+    <div class="pill" id="modePill">MODE: —</div>
+    <div class="pill" id="timePill">τ: 0.000</div>
+    <div class="pill" id="backendPill">BACKEND: —</div>
+  </div>
+
+  <div class="cornerBtns">
+    <button id="helpBtn">H</button>
+    <button id="uiBtn">U</button>
+  </div>
+
+  <div class="studioUI" id="studioUI" aria-hidden="true">
+    <h3>
+      <span>Studio Parameters</span>
+      <span style="opacity:.7;font-size:11px;letter-spacing:.14em;text-transform:uppercase">saved locally</span>
+    </h3>
+
+    <div class="smallNote">
+      Frequencies are <b>integer-stepped</b> to keep the loop exact for any period T.
+      If you want “more chaos,” increase warp amplitudes and micro weight — not fractional time frequencies.
+    </div>
+
+    
+
+    <h4>Sequencer</h4>
+    <div class="seqBox">
+      <div class="seqTop">
+        <div class="left">
+          <div class="toggle">
+            <input type="checkbox" id="seqEnabled"/>
+            <label for="seqEnabled" style="cursor:pointer;">Sequence</label>
+          </div>
+          <div class="pill" id="seqStatePill" style="pointer-events:none;">STATE: idle</div>
+          <div class="pill" id="seqCutPill" style="pointer-events:none;">CUT: —</div>
+          <div class="pill" id="seqNextPill" style="pointer-events:none;">NEXT: —</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <button id="seqCutNowBtn">Cut Now</button>
+          <button class="primary" id="seqStartBtn">Start</button>
+          <button id="seqStopBtn" style="background: rgba(255,90,90,0.10); border-color: rgba(255,90,90,0.22);">Stop</button>
+        </div>
+      </div>
+
+      <div class="seqGrid" id="seqGrid">
+        <div class="row">
+          <label>Sequence length (cuts)</label>
+          <input id="seqLen" type="range" min="1" max="16" step="1" value="7"/>
+          <div class="val" id="seqLenVal">7</div>
+        </div>
+
+        <div class="row">
+          <label>Crossfade (ms)</label>
+          <input id="seqXfade" type="range" min="0" max="4000" step="400" value="0"/>
+          <div class="val" id="seqXfadeVal">0</div>
+        </div>
+
+        <div class="smallNote" style="margin:0;">
+          Each cut is exactly the same as pressing <b>Randomize</b>. Crossfade blends <i>continuous</i> parameters only; integer frequencies snap to preserve exact looping.
+        </div>
+
+        <div class="seqCuts" id="seqCuts"></div>
+      </div>
+    </div>
+
+<h4>Loop</h4>
+    <div class="rows" id="rows_loop"></div>
+
+    <h4>Mix / Tonality</h4>
+    <div class="rows" id="rows_mix"></div>
+
+    <h4>Macro interference</h4>
+    <div class="rows" id="rows_macro"></div>
+
+    <h4>Micro warp</h4>
+    <div class="rows" id="rows_warp"></div>
+
+    <h4>Material</h4>
+    <div class="rows" id="rows_mat"></div>
+
+    <div class="studioActions">
+      <button id="resetBtn">Reset</button>
+      <button id="randomBtn">Randomize</button>
+      <button id="copyBtn">Copy Preset JSON</button>
+    </div>
+  </div>
+
+  <div class="drawer hidden" id="drawer">
+    <h3 style="margin:0 0 8px 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.9;">Runbook / Tech Rider</h3>
+    <p style="margin:0;font-size:12.5px;line-height:1.45;opacity:.84;">
+      <b>Preferred:</b> Chrome (Desktop) with hardware acceleration ON.
+      This build probes WebGL2 offscreen and falls back to Canvas2D if needed.
+    </p>
+    <ul style="margin:8px 0 0 18px;padding:0;font-size:12.5px;line-height:1.45;opacity:.84;">
+      <li><b>Begin — Kiosk</b>: requests fullscreen and hides cursor.</li>
+      <li><b>Esc</b>: exits fullscreen and returns to gate.</li>
+      <li><b>U</b>: toggles Studio UI (Studio mode only).</li>
+    </ul>
+    <p style="margin-top:10px;opacity:.72;font-size:12.5px;line-height:1.45;">
+      If renderer shows <b>SwiftShader</b>, you are on software rendering; kiosk reliability depends on enabling GPU acceleration.
+    </p>
+  </div>
+
+<script>
+(() => {
+  // =================== Defaults (formal-safe) ===================
+  const DEFAULTS = {
+    // Loop
+    T_SECONDS: 24,
+
+    // Mix / tonality
+    base: 0.04,
+    macroW: 0.68,
+    microW: 0.22,
+    grainW: 0.10,
+    macroGain: 1.35,
+    gamma: 1.85,
+
+    // Palette (restrained)
+    bgL: 0.045,     // background luminance
+    fgL: 0.90,      // foreground luminance
+    warmth: 0.06,   // -0.2..0.2 (tints fg slightly warm/cool)
+
+    // Macro weights (amplitudes)
+    m1: 0.65, m2: 0.55, m3: 0.45, m4: 0.35, m5: 0.20,
+    macroScale: 1.0, // extra global scaler
+
+    // Micro warp (amplitudes + integer frequencies)
+    A0: 0.085, A1: 0.025, qA: 3, rAlpha: 7,
+    B0: 0.070, B1: 0.030, qB: 5, rBeta: 11,
+
+    A20: 0.030, A21: 0.020, qA2: 2, rA2: 13,
+    B20: 0.020, B21: 0.018, qB2: 4, rB2: 17,
+
+    // Material controls
+    pigmentScale: 1.0,  // scales UVs into pigment fbm
+    pigmentOct: 5,      // integer 1..7
+    grainScale: 2.0,    // grain frequency
+    edge: 0.0,          // 0..0.25 subtle edge/transfer look
+
+    // Backend quality controls (Studio only)
+    cpuBaseW: 420,
+    cpuMaxPixels: 520*520,
+    glScale: 0.90
+  };
+
+  // =================== UI & state ===================
+  const gate = document.getElementById('gate');
+  const tLabel = document.getElementById('tLabel');
+  const mathBlock = document.getElementById('mathBlock');
+  const modePill = document.getElementById('modePill');
+  const timePill = document.getElementById('timePill');
+  const backendPill = document.getElementById('backendPill');
+  const warnBox = document.getElementById('warnBox');
+
+  const uiBtn = document.getElementById('uiBtn');
+  const studioUI = document.getElementById('studioUI');
+
+  const helpBtn = document.getElementById('helpBtn');
+  const drawer = document.getElementById('drawer');
+
+  tLabel.textContent = `${DEFAULTS.T_SECONDS}s`;
+
+  mathBlock.textContent =
+`Domain: (x,y) ∈ [0,1)² on a torus, τ(t) = (t mod T)/T
+
+Macro interference:
+  I(x,y,t) = Σ aₖ sin(2π(nₖ x + mₖ y) + 2π pₖ τ + φₖ)
+
+Micro “advection” (closed-form, no drift):
+  x₁ = x + A(τ) sin(2π y + α(τ))   (mod 1)
+  y₂ = y + B(τ) sin(2π x₁ + β(τ))  (mod 1)
+
+Final density:
+  D = clamp(base + macroW·σ(I) + microW·ρ + grainW·grain, 0..1)
+Exact loop: all time terms use integer multiples of τ.`;
+
+  let MODE = "GATE";   // GATE | STUDIO | KIOSK
+  let BACKEND = "—";   // WEBGL2 | CANVAS2D
+  let started = false;
+
+  function setMode(m){
+    MODE = m;
+    modePill.textContent = `MODE: ${m}`;
+    gate.classList.toggle('hidden', m !== "GATE");
+    document.body.classList.toggle('kiosk', m === "KIOSK");
+    // Studio UI only valid in STUDIO
+    if (m !== "STUDIO") setStudioUI(false);
+    uiBtn.style.display = (m === "STUDIO") ? "inline-block" : "none";
+  }
+  function setBackend(b){
+    BACKEND = b;
+    backendPill.textContent = `BACKEND: ${b}`;
+  }
+  function warn(msg){
+    warnBox.style.display = 'block';
+    warnBox.textContent = msg;
+  }
+  function clearWarn(){
+    warnBox.style.display = 'none';
+    warnBox.textContent = '';
+  }
+
+  // =================== Persistence ===================
+  const LS_KEY = "formal_loop_params_v1";
+  function loadParams(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return {...DEFAULTS};
+      const obj = JSON.parse(raw);
+      return {...DEFAULTS, ...obj};
+    } catch(e){
+      return {...DEFAULTS};
+    }
+  }
+  function saveParams(p){
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify(p));
+    } catch(e){}
+  }
+
+  const P = loadParams();
+
+
+  // =================== Sequencer (Studio) ===================
+  // Preserves Randomize exactly; sequencer simply triggers the same randomization on timed cuts.
+  // Crossfade: optional; blends continuous params only. Integer frequency params snap (formalism preserved).
+
+  const SEQ_LS_KEY = "formal_loop_sequencer_v1";
+  const INT_KEYS = new Set([
+    "T_SECONDS",
+    "qA","rAlpha","qB","rBeta",
+    "qA2","rA2","qB2","rB2",
+    "pigmentOct",
+    "cpuBaseW","cpuMaxPixels"
+  ]);
+
+  const SEQ_DEFAULT = {
+    enabled: false,
+    running: false,
+    length: 7,
+    cuts: [8,2,2,2,2,4,4], // seconds
+    xfadeMs: 0,           // 0..4000 step 400
+    loop: true
+  };
+
+  function loadSeq(){
+    try{
+      const raw = localStorage.getItem(SEQ_LS_KEY);
+      if (!raw) return {...SEQ_DEFAULT};
+      const obj = JSON.parse(raw);
+      const s = {...SEQ_DEFAULT, ...obj};
+      s.length = Math.max(1, Math.min(16, Math.round(s.length || 1)));
+      s.xfadeMs = Math.max(0, Math.min(4000, Math.round((s.xfadeMs || 0) / 400) * 400));
+      if (!Array.isArray(s.cuts)) s.cuts = [];
+      s.cuts = s.cuts.map(x => Math.max(0.1, Number(x) || 1)).slice(0, 16);
+      while (s.cuts.length < s.length) s.cuts.push(2);
+      s.cuts = s.cuts.slice(0, s.length);
+      s.enabled = !!s.enabled;
+      s.running = false; // never auto-run on load
+      return s;
+    } catch(e){
+      return {...SEQ_DEFAULT};
+    }
+  }
+  function saveSeq(){
+    try{
+      localStorage.setItem(SEQ_LS_KEY, JSON.stringify({
+        enabled: !!SEQ.enabled,
+        length: SEQ.length,
+        cuts: SEQ.cuts.slice(0, SEQ.length),
+        xfadeMs: SEQ.xfadeMs,
+        loop: !!SEQ.loop
+      }));
+    } catch(e){}
+  }
+
+  const SEQ = loadSeq();
+  const seqUI = {
+    enabled: document.getElementById('seqEnabled'),
+    len: document.getElementById('seqLen'),
+    lenVal: document.getElementById('seqLenVal'),
+    xfade: document.getElementById('seqXfade'),
+    xfadeVal: document.getElementById('seqXfadeVal'),
+    cutsWrap: document.getElementById('seqCuts'),
+    startBtn: document.getElementById('seqStartBtn'),
+    stopBtn: document.getElementById('seqStopBtn'),
+    cutNowBtn: document.getElementById('seqCutNowBtn'),
+    statePill: document.getElementById('seqStatePill'),
+    cutPill: document.getElementById('seqCutPill'),
+    nextPill: document.getElementById('seqNextPill'),
+  };
+
+  const seqRun = {
+    idx: 0,
+    nextAtMs: 0,
+    transitioning: false,
+    t0: 0,
+    dur: 0,
+    from: null,
+    to: null,
+  };
+
+  function snapshotParams(){
+    const o = {};
+    for (const k in DEFAULTS) o[k] = P[k];
+    return o;
+  }
+
+  // === Randomize distribution (copied verbatim from the Randomize button) ===
+  function generateRandomParams(){
+    const r = (a,b)=>a + Math.random()*(b-a);
+    const ri = (a,b)=>Math.round(r(a,b));
+    const out = snapshotParams();
+
+    out.base = r(0.0, 0.12);
+    out.macroW = r(0.2, 1.4);
+    out.microW = r(-0.8, 0.9);
+    out.grainW = r(0.02, 0.18);
+    out.macroGain = r(0.6, 2.8);
+    out.gamma = r(0.9, 2.8);
+
+    out.bgL = r(0.0, 0.10);
+    out.fgL = r(0.7, 1.05);
+    out.warmth = r(-0.10, 0.12);
+
+    out.macroScale = r(0.5, 1.8);
+    out.m1 = r(0.0, 1.4);
+    out.m2 = r(0.0, 1.4);
+    out.m3 = r(0.0, 1.4);
+    out.m4 = r(0.0, 1.2);
+    out.m5 = r(0.0, 1.1);
+
+    out.A0 = r(0.0, 0.18);
+    out.A1 = r(0.0, 0.18);
+    out.B0 = r(0.0, 0.16);
+    out.B1 = r(0.0, 0.16);
+    out.qA = ri(1, 16);
+    out.qB = ri(1, 16);
+    out.rAlpha = ri(1, 36);
+    out.rBeta  = ri(1, 36);
+
+    out.A20 = r(0.0, 0.10);
+    out.A21 = r(0.0, 0.10);
+    out.B20 = r(0.0, 0.10);
+    out.B21 = r(0.0, 0.10);
+    out.qA2 = ri(1, 16);
+    out.qB2 = ri(1, 16);
+    out.rA2 = ri(1, 48);
+    out.rB2 = ri(1, 48);
+
+    out.pigmentScale = r(0.5, 2.8);
+    out.pigmentOct = ri(2, 6);
+    out.grainScale = r(1.0, 6.0);
+    out.edge = r(0.0, 0.18);
+
+    return out;
+  }
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function clamp01(x){ return x < 0 ? 0 : (x > 1 ? 1 : x); }
+
+  function applyBlend(from, to, t){
+    const a = clamp01(t);
+    for (const k in DEFAULTS){
+      if (INT_KEYS.has(k)) {
+        P[k] = to[k]; // snap ints to target
+      } else {
+        const av = Number(from[k]);
+        const bv = Number(to[k]);
+        if (Number.isFinite(av) && Number.isFinite(bv)) P[k] = lerp(av, bv, a);
+        else P[k] = to[k];
+      }
+    }
+  }
+
+  function seqSetState(text){
+    seqUI.statePill.textContent = `STATE: ${text}`;
+  }
+  function seqSetCutPill(){
+    if (!SEQ.running) { seqUI.cutPill.textContent = "CUT: —"; return; }
+    seqUI.cutPill.textContent = `CUT: ${seqRun.idx+1}/${SEQ.length}`;
+  }
+  function seqSetNextPill(now){
+    if (!SEQ.running) { seqUI.nextPill.textContent = "NEXT: —"; return; }
+    const left = Math.max(0, (seqRun.nextAtMs - now) / 1000);
+    seqUI.nextPill.textContent = `NEXT: ${left.toFixed(1)}s`;
+  }
+
+  function rebuildSeqCutsUI(){
+    const wrap = seqUI.cutsWrap;
+    while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
+
+    for (let i=0;i<SEQ.length;i++){
+      const row = document.createElement('div');
+      row.className = 'seqCutRow';
+
+      const lab = document.createElement('div');
+      lab.className = 'lab';
+      lab.textContent = `CUT ${i+1}`;
+
+      const input = document.createElement('input');
+      input.type = 'range';
+      input.min = "0.5";
+      input.max = "30";
+      input.step = "0.5";
+      input.value = String(SEQ.cuts[i] ?? 2);
+
+      const val = document.createElement('div');
+      val.className = 'val';
+      val.textContent = `${Number(input.value).toFixed(1)}s`;
+
+      input.addEventListener('input', (e)=>{
+        const v = Math.max(0.1, Number(e.target.value) || 2);
+        SEQ.cuts[i] = v;
+        val.textContent = `${v.toFixed(1)}s`;
+        saveSeq();
+      });
+
+      row.appendChild(lab);
+      row.appendChild(input);
+      row.appendChild(val);
+      wrap.appendChild(row);
+    }
+  }
+
+  function syncSeqUI(){
+    seqUI.enabled.checked = !!SEQ.enabled;
+    seqUI.len.value = String(SEQ.length);
+    seqUI.lenVal.textContent = String(SEQ.length);
+    seqUI.xfade.value = String(SEQ.xfadeMs);
+    seqUI.xfadeVal.textContent = String(SEQ.xfadeMs);
+    rebuildSeqCutsUI();
+    seqSetState(SEQ.running ? "playing" : (SEQ.enabled ? "armed" : "idle"));
+    seqSetCutPill();
+    seqUI.nextPill.textContent = "NEXT: —";
+  }
+
+  function seqStop(){
+    SEQ.running = false;
+    seqRun.transitioning = false;
+    seqRun.from = null;
+    seqRun.to = null;
+    seqRun.nextAtMs = 0;
+    seqRun.idx = 0;
+    saveSeq();
+    seqSetState(SEQ.enabled ? "armed" : "idle");
+    seqSetCutPill();
+    seqUI.nextPill.textContent = "NEXT: —";
+  }
+
+  function seqDoCut(now){
+    // Cut is defined as: EXACTLY what happens if the user presses Randomize.
+    // For crossfade, we press Randomize to get the target, capture it, then blend visuals from prior → target.
+    const cutSec = Math.max(0.1, Number(SEQ.cuts[seqRun.idx] || 2));
+    const cutMs = cutSec * 1000;
+
+    const xfade = Math.max(0, Math.min(4000, SEQ.xfadeMs|0));
+    const dur = Math.min(xfade, cutMs);
+
+    if (dur <= 0){
+      // EXACT: behave like pressing Randomize (same code path)
+      document.getElementById('randomBtn').click();
+      seqRun.transitioning = false;
+      seqRun.from = null;
+      seqRun.to = null;
+    } else {
+      // Capture current state
+      seqRun.from = snapshotParams();
+
+      // EXACT Randomize hit (UI + saved params jump, same as a real button press)
+      document.getElementById('randomBtn').click();
+
+      // Capture target state produced by Randomize
+      seqRun.to = snapshotParams();
+
+      // Begin visual blend
+      seqRun.t0 = now;
+      seqRun.dur = dur;
+      seqRun.transitioning = true;
+
+      // Restore start-of-blend visuals immediately (so the viewer doesn't see a hard pop)
+      applyBlend(seqRun.from, seqRun.to, 0);
+    }
+
+    // Schedule next cut
+    seqRun.nextAtMs = now + cutMs;
+    seqSetCutPill();
+  }
+
+  function seqStart(now){
+    if (MODE !== "STUDIO") { warn("Sequencer is Studio-only."); return; }
+    if (!started) { warn("Start Studio mode first."); return; }
+    SEQ.running = true;
+    saveSeq();
+    seqRun.idx = 0;
+    seqSetState("playing");
+    seqDoCut(now);
+  }
+
+  function seqAdvance(now){
+    seqRun.idx++;
+    if (seqRun.idx >= SEQ.length){
+      if (SEQ.loop) seqRun.idx = 0;
+      else { seqStop(); return; }
+    }
+    seqDoCut(now);
+  }
+
+  function seqUpdate(now){
+    if (MODE !== "STUDIO" || !SEQ.enabled){
+      if (SEQ.running) seqStop();
+      return;
+    }
+    if (!SEQ.running){
+      seqSetState("armed");
+      return;
+    }
+
+    if (seqRun.transitioning && seqRun.from && seqRun.to){
+      const t = (now - seqRun.t0) / Math.max(1, seqRun.dur);
+      const a = clamp01(t);
+      applyBlend(seqRun.from, seqRun.to, a);
+      if (a >= 1){
+        for (const k in seqRun.to) P[k] = seqRun.to[k];
+        seqRun.transitioning = false;
+        seqRun.from = null;
+        seqRun.to = null;
+      }
+    }
+
+    seqSetCutPill();
+    seqSetNextPill(now);
+
+    if (now >= seqRun.nextAtMs){
+      seqAdvance(now);
+    }
+  }
+
+  // UI events
+  seqUI.enabled.addEventListener('change', (e)=>{
+    SEQ.enabled = !!e.target.checked;
+    saveSeq();
+    if (!SEQ.enabled) seqStop();
+    seqSetState(SEQ.enabled ? "armed" : "idle");
+  });
+
+  seqUI.len.addEventListener('input', (e)=>{
+    const n = Math.max(1, Math.min(16, Math.round(Number(e.target.value) || 1)));
+    SEQ.length = n;
+    seqUI.lenVal.textContent = String(n);
+    if (!Array.isArray(SEQ.cuts)) SEQ.cuts = [];
+    while (SEQ.cuts.length < n) SEQ.cuts.push(2);
+    SEQ.cuts = SEQ.cuts.slice(0, n);
+    saveSeq();
+    rebuildSeqCutsUI();
+  });
+
+  seqUI.xfade.addEventListener('input', (e)=>{
+    const ms = Math.max(0, Math.min(4000, Math.round((Number(e.target.value)||0)/400)*400));
+    SEQ.xfadeMs = ms;
+    seqUI.xfadeVal.textContent = String(ms);
+    saveSeq();
+  });
+
+  seqUI.startBtn.addEventListener('click', ()=>{
+    const now = performance.now();
+    if (!SEQ.enabled) { SEQ.enabled = true; seqUI.enabled.checked = true; }
+    seqStart(now);
+  });
+
+  seqUI.stopBtn.addEventListener('click', ()=>seqStop());
+
+  seqUI.cutNowBtn.addEventListener('click', ()=>{
+    const now = performance.now();
+    if (!SEQ.enabled) { SEQ.enabled = true; seqUI.enabled.checked = true; }
+    if (!SEQ.running) seqStart(now);
+    else seqAdvance(now);
+  });
+
+  // Space = cut now (Studio only)
+  window.addEventListener('keydown', (e)=>{
+    if (MODE !== "STUDIO") return;
+    if (e.code === "Space"){
+      e.preventDefault();
+      if (!SEQ.enabled) return;
+      const now = performance.now();
+      if (!SEQ.running) seqStart(now);
+      else seqAdvance(now);
+    }
+  }, { passive:false });
+
+  // Initialize UI
+  syncSeqUI();
+
+
+  // =================== Fullscreen ===================
+  async function goFullscreen(){
+    const el = document.documentElement;
+    if (!document.fullscreenElement) {
+      try { await el.requestFullscreen({ navigationUI: "hide" }); } catch(e){}
+    }
+  }
+  async function exitFullscreen(){
+    if (document.fullscreenElement) {
+      try { await document.exitFullscreen(); } catch(e){}
+    }
+  }
+
+  // =================== Help drawer ===================
+  function toggleHelp(){
+    drawer.classList.toggle('hidden');
+  }
+  helpBtn.addEventListener('click', toggleHelp);
+
+  // =================== Studio UI toggle ===================
+  function setStudioUI(on){
+    const want = !!on;
+    studioUI.style.display = want ? 'block' : 'none';
+    studioUI.setAttribute('aria-hidden', want ? 'false' : 'true');
+  }
+  function toggleStudioUI(){
+    if (MODE !== "STUDIO") return;
+    setStudioUI(studioUI.style.display !== 'block');
+  }
+  uiBtn.addEventListener('click', toggleStudioUI);
+
+  // =================== Keyboard ===================
+  window.addEventListener('keydown', async (e) => {
+    const k = e.key.toLowerCase();
+    if (k === 'escape') {
+      await exitFullscreen();
+      seqStop();
+      setMode("GATE");
+      drawer.classList.add('hidden');
+    } else if (k === 'f') {
+      if (document.fullscreenElement) await exitFullscreen();
+      else await goFullscreen();
+    } else if (k === 'h') {
+      toggleHelp();
+    } else if (k === 'u') {
+      toggleStudioUI();
+    }
+  });
+
+  // =================== UI builder ===================
+  function mkRow(container, key, label, min, max, step, fmt){
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    const lab = document.createElement('label');
+    lab.textContent = label;
+
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = String(min);
+    input.max = String(max);
+    input.step = String(step);
+    input.value = String(P[key]);
+
+    const val = document.createElement('div');
+    val.className = 'val';
+    const format = fmt || ((x)=>Number(x).toFixed(3));
+    val.textContent = format(P[key]);
+
+    function clampAndSet(v){
+      let x = Number(v);
+      if (!Number.isFinite(x)) return;
+      // integers when step is 1
+      if (Number(step) === 1) x = Math.round(x);
+      x = Math.max(min, Math.min(max, x));
+      P[key] = x;
+      input.value = String(x);
+      val.textContent = format(x);
+      if (key === "T_SECONDS") tLabel.textContent = `${P.T_SECONDS}s`;
+      // apply live
+      applyParams();
+      saveParams(P);
+    }
+
+    input.addEventListener('input', (ev)=>clampAndSet(ev.target.value));
+    row.appendChild(lab);
+    row.appendChild(input);
+    row.appendChild(val);
+    container.appendChild(row);
+  }
+
+  function buildUI(){
+    const rows_loop = document.getElementById('rows_loop');
+    const rows_mix  = document.getElementById('rows_mix');
+    const rows_macro= document.getElementById('rows_macro');
+    const rows_warp = document.getElementById('rows_warp');
+    const rows_mat  = document.getElementById('rows_mat');
+
+    const clear = (el)=>{ while(el.firstChild) el.removeChild(el.firstChild); };
+    [rows_loop, rows_mix, rows_macro, rows_warp, rows_mat].forEach(clear);
+
+    mkRow(rows_loop, "T_SECONDS", "Loop period T (s)", 6, 120, 1, (x)=>`${Math.round(x)}s`);
+    mkRow(rows_loop, "glScale", "WebGL internal scale", 0.35, 1.25, 0.01);
+    mkRow(rows_loop, "cpuBaseW", "CPU base width", 160, 1200, 1, (x)=>`${Math.round(x)}px`);
+    mkRow(rows_loop, "cpuMaxPixels", "CPU max pixels", 60000, 900000, 1000, (x)=>`${Math.round(x)}`);
+
+    mkRow(rows_mix, "base", "Base density", 0.0, 0.20, 0.001);
+    mkRow(rows_mix, "macroW", "Macro weight", 0.0, 1.60, 0.005);
+    mkRow(rows_mix, "microW", "Micro weight", -1.00, 1.00, 0.005);
+    mkRow(rows_mix, "grainW", "Grain weight", 0.0, 0.30, 0.001);
+    mkRow(rows_mix, "macroGain", "Macro gain (tanh)", 0.20, 3.50, 0.01);
+    mkRow(rows_mix, "gamma", "Gamma", 0.40, 3.50, 0.01);
+
+    mkRow(rows_mix, "bgL", "Background luminance", 0.0, 0.20, 0.001);
+    mkRow(rows_mix, "fgL", "Foreground luminance", 0.30, 1.20, 0.005);
+    mkRow(rows_mix, "warmth", "Warmth (tint)", -0.20, 0.20, 0.005);
+
+    mkRow(rows_macro, "macroScale", "Macro global scale", 0.0, 2.50, 0.01);
+    mkRow(rows_macro, "m1", "Mode 1 amplitude", 0.0, 1.80, 0.01);
+    mkRow(rows_macro, "m2", "Mode 2 amplitude", 0.0, 1.80, 0.01);
+    mkRow(rows_macro, "m3", "Mode 3 amplitude", 0.0, 1.80, 0.01);
+    mkRow(rows_macro, "m4", "Mode 4 amplitude", 0.0, 1.80, 0.01);
+    mkRow(rows_macro, "m5", "Mode 5 amplitude", 0.0, 1.80, 0.01);
+
+    mkRow(rows_warp, "A0", "A0 shear base", 0.0, 0.35, 0.001);
+    mkRow(rows_warp, "A1", "A1 shear mod", 0.0, 0.35, 0.001);
+    mkRow(rows_warp, "qA", "qA (int freq)", 1, 24, 1, (x)=>`${Math.round(x)}`);
+    mkRow(rows_warp, "rAlpha", "α (int freq)", 1, 48, 1, (x)=>`${Math.round(x)}`);
+
+    mkRow(rows_warp, "B0", "B0 shear base", 0.0, 0.35, 0.001);
+    mkRow(rows_warp, "B1", "B1 shear mod", 0.0, 0.35, 0.001);
+    mkRow(rows_warp, "qB", "qB (int freq)", 1, 24, 1, (x)=>`${Math.round(x)}`);
+    mkRow(rows_warp, "rBeta", "β (int freq)", 1, 48, 1, (x)=>`${Math.round(x)}`);
+
+    mkRow(rows_warp, "A20", "A2 base", 0.0, 0.25, 0.001);
+    mkRow(rows_warp, "A21", "A2 mod", 0.0, 0.25, 0.001);
+    mkRow(rows_warp, "qA2", "qA2 (int freq)", 1, 24, 1, (x)=>`${Math.round(x)}`);
+    mkRow(rows_warp, "rA2", "α2 (int freq)", 1, 64, 1, (x)=>`${Math.round(x)}`);
+
+    mkRow(rows_warp, "B20", "B2 base", 0.0, 0.25, 0.001);
+    mkRow(rows_warp, "B21", "B2 mod", 0.0, 0.25, 0.001);
+    mkRow(rows_warp, "qB2", "qB2 (int freq)", 1, 24, 1, (x)=>`${Math.round(x)}`);
+    mkRow(rows_warp, "rB2", "β2 (int freq)", 1, 64, 1, (x)=>`${Math.round(x)}`);
+
+    mkRow(rows_mat, "pigmentScale", "Pigment scale", 0.20, 4.50, 0.01);
+    mkRow(rows_mat, "pigmentOct", "Pigment octaves", 1, 7, 1, (x)=>`${Math.round(x)}`);
+    mkRow(rows_mat, "grainScale", "Grain scale", 0.50, 10.0, 0.01);
+    mkRow(rows_mat, "edge", "Transfer edge", 0.0, 0.25, 0.005);
+
+    // actions
+    document.getElementById('resetBtn').onclick = () => {
+      Object.assign(P, DEFAULTS);
+      saveParams(P);
+      buildUI();
+      applyParams();
+    };
+    document.getElementById('randomBtn').onclick = () => {
+      // Controlled chaos, still formal: keep integer freqs; push amplitudes.
+      const r = (a,b)=>a + Math.random()*(b-a);
+      const ri = (a,b)=>Math.round(r(a,b));
+      P.base = r(0.0, 0.12);
+      P.macroW = r(0.2, 1.4);
+      P.microW = r(-0.8, 0.9);
+      P.grainW = r(0.02, 0.18);
+      P.macroGain = r(0.6, 2.8);
+      P.gamma = r(0.9, 2.8);
+
+      P.bgL = r(0.0, 0.10);
+      P.fgL = r(0.7, 1.05);
+      P.warmth = r(-0.10, 0.12);
+
+      P.macroScale = r(0.5, 1.8);
+      P.m1 = r(0.0, 1.4);
+      P.m2 = r(0.0, 1.4);
+      P.m3 = r(0.0, 1.4);
+      P.m4 = r(0.0, 1.2);
+      P.m5 = r(0.0, 1.1);
+
+      P.A0 = r(0.0, 0.18);
+      P.A1 = r(0.0, 0.18);
+      P.B0 = r(0.0, 0.16);
+      P.B1 = r(0.0, 0.16);
+      P.qA = ri(1, 16);
+      P.qB = ri(1, 16);
+      P.rAlpha = ri(1, 36);
+      P.rBeta  = ri(1, 36);
+
+      P.A20 = r(0.0, 0.10);
+      P.A21 = r(0.0, 0.10);
+      P.B20 = r(0.0, 0.10);
+      P.B21 = r(0.0, 0.10);
+      P.qA2 = ri(1, 16);
+      P.qB2 = ri(1, 16);
+      P.rA2 = ri(1, 48);
+      P.rB2 = ri(1, 48);
+
+      P.pigmentScale = r(0.5, 2.8);
+      P.pigmentOct = ri(2, 6);
+      P.grainScale = r(1.0, 6.0);
+      P.edge = r(0.0, 0.18);
+
+      saveParams(P);
+      buildUI();
+      applyParams();
+    };
+    document.getElementById('copyBtn').onclick = async () => {
+      const txt = JSON.stringify(P, null, 2);
+      try{
+        await navigator.clipboard.writeText(txt);
+        warn("Preset JSON copied to clipboard.");
+        setTimeout(()=>clearWarn(), 900);
+      } catch(e){
+        warn("Clipboard blocked. Select + copy from console: preset printed.");
+        console.log("PRESET:", txt);
+      }
+    };
+  }
+
+  // =================== Backend probe (offscreen) ===================
+  function detectRendererInfo(){
+    const probe = document.createElement('canvas');
+    let gl = probe.getContext('webgl2', { antialias:false, alpha:false, depth:false, stencil:false, powerPreference:"high-performance" });
+    if (!gl) return { ok:false, vendor:"", renderer:"", isSoftware:false };
+
+    let vendor="", renderer="", isSoftware=false;
+    try{
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      if (ext){
+        vendor = gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) || "";
+        renderer = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "";
+      }
+      const r = (renderer || "").toLowerCase();
+      isSoftware = r.includes('swiftshader') || r.includes('llvmpipe') || r.includes('software');
+    } catch(e){}
+    return { ok:true, vendor, renderer, isSoftware };
+  }
+
+  const renderProbe = detectRendererInfo();
+  if (renderProbe.ok){
+    mathBlock.textContent += `\n\nRenderer: webgl2 · ${renderProbe.vendor || '(vendor?)'} · ${renderProbe.renderer || '(renderer?)'}`;
+    if (renderProbe.isSoftware){
+      warn(`Software WebGL detected (${renderProbe.renderer || 'unknown'}). Will use Canvas2D unless GPU acceleration is enabled.`);
+    }
+  } else {
+    warn("WebGL2 not available. Will use Canvas2D fallback.");
+  }
+
+  // =================== Core time ===================
+  function tauFromTimeSeconds(t){
+    const T = Math.max(1e-6, P.T_SECONDS);
+    const tt = t % T;
+    return (tt < 0 ? tt + T : tt) / T;
+  }
+
+  // =================== Main canvas + contexts ===================
+  const canvas = document.getElementById('c');
+
+  // ---------- WebGL2 backend ----------
+  let gl = null;
+  const glState = { ok:false, prog:null, vao:null, uRes:null, uTime:null, uT:null, uParams0:null, uParams1:null, uParams2:null, uParams3:null,
+                    scale:P.glScale, w:0, h:0, t0:0, last:0, frameCount:0, acc:0 };
+
+  const vert300 = `#version 300 es
+  precision highp float;
+  in vec2 a_pos;
+  out vec2 v_uv;
+  void main(){ v_uv = a_pos * 0.5 + 0.5; gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+
+  // Pack parameters into vec4 uniforms for simplicity.
+  // uP0: base, macroW, microW, grainW
+  // uP1: macroGain, gamma, bgL, fgL
+  // uP2: warmth, macroScale, m1, m2
+  // uP3: m3, m4, m5, edge
+  // uW0: A0, A1, B0, B1  (in uW0)
+  // uW1: qA, rAlpha, qB, rBeta  (in uW1, integer-ish but float)
+  // uW2: A20, A21, B20, B21 (in uW2)
+  // uW3: qA2, rA2, qB2, rB2 (in uW3)
+  // uM0: pigmentScale, pigmentOct, grainScale, unused (in uM0)
+  const frag300 = `#version 300 es
+  precision highp float;
+  out vec4 o;
+  in vec2 v_uv;
+
+  uniform vec2 u_res;
+  uniform float u_time;
+  uniform float u_T;
+
+  uniform vec4 uP0;
+  uniform vec4 uP1;
+  uniform vec4 uP2;
+  uniform vec4 uP3;
+
+  uniform vec4 uW0;
+  uniform vec4 uW1;
+  uniform vec4 uW2;
+  uniform vec4 uW3;
+
+  uniform vec4 uM0;
+
+  #define TAU 6.283185307179586
+
+  float sat(float x){ return clamp(x, 0.0, 1.0); }
+
+  float hash2(ivec2 p){
+    int n = p.x * 374761393 + p.y * 668265263;
+    n = (n ^ (n >> 13)) * 1274126177;
+    n = n ^ (n >> 16);
+    return fract(float(n) * 0.00000000023283064365);
+  }
+
+  float valueNoiseTiled(vec2 uv, int N){
+    vec2 x = uv * float(N);
+    ivec2 p = ivec2(floor(x));
+    p = ivec2((p.x % N + N) % N, (p.y % N + N) % N);
+    vec2 f = fract(x);
+
+    ivec2 p10 = ivec2((p.x + 1) % N, p.y);
+    ivec2 p01 = ivec2(p.x, (p.y + 1) % N);
+    ivec2 p11 = ivec2((p.x + 1) % N, (p.y + 1) % N);
+
+    float a = hash2(p);
+    float b = hash2(p10);
+    float c = hash2(p01);
+    float d = hash2(p11);
+
+    vec2 u = f*f*(3.0 - 2.0*f);
+    return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
+  }
+
+  float fbmTiled(vec2 uv, int oct){
+    float s = 0.0;
+    float amp = 0.55;
+    int N = 128;
+    vec2 p = uv;
+    for(int i=0;i<7;i++){
+      if (i >= oct) break;
+      s += amp * valueNoiseTiled(fract(p), N);
+      p = fract(p * 2.0);
+      amp *= 0.5;
+      N = min(N * 2, 1024);
+    }
+    return s;
+  }
+
+  vec2 warp(vec2 uv, float tau){
+    float A0 = uW0.x;
+    float A1 = uW0.y;
+    float B0 = uW0.z;
+    float B1 = uW0.w;
+
+    float qA = uW1.x;
+    float rAlpha = uW1.y;
+    float qB = uW1.z;
+    float rBeta = uW1.w;
+
+    float A = A0 + A1 * sin(TAU * (qA * tau));
+    float B = B0 + B1 * sin(TAU * (qB * tau));
+    float alpha = TAU * (rAlpha * tau);
+    float beta  = TAU * (rBeta  * tau);
+
+    float x1 = fract(uv.x + A * sin(TAU * uv.y + alpha));
+    float y2 = fract(uv.y + B * sin(TAU * x1 + beta));
+
+    float A20 = uW2.x;
+    float A21 = uW2.y;
+    float B20 = uW2.z;
+    float B21 = uW2.w;
+
+    float qA2 = uW3.x;
+    float rA2 = uW3.y;
+    float qB2 = uW3.z;
+    float rB2 = uW3.w;
+
+    float A2 = A20 + A21 * sin(TAU * (qA2 * tau));
+    float B2 = B20 + B21 * sin(TAU * (qB2 * tau));
+    float alpha2 = TAU * (rA2 * tau);
+    float beta2  = TAU * (rB2 * tau);
+
+    float x3 = fract(x1 + A2 * sin(TAU * y2 + alpha2));
+    float y4 = fract(y2 + B2 * sin(TAU * x3 + beta2));
+
+    return vec2(x3, y4);
+  }
+
+  float interference(vec2 uv, float tau){
+    // fixed (n,m,p,phi), variable amplitudes
+    float m1 = uP2.z;
+    float m2 = uP2.w;
+    float m3 = uP3.x;
+    float m4 = uP3.y;
+    float m5 = uP3.z;
+    float sc = uP2.y;
+
+    float s = 0.0;
+    s += m1 * sin(TAU * ( 3.0*uv.x + 1.0*uv.y +  2.0*tau) + 0.7);
+    s += m2 * sin(TAU * ( 1.0*uv.x + 4.0*uv.y +  3.0*tau) - 1.1);
+    s += m3 * sin(TAU * ( 5.0*uv.x + 2.0*uv.y +  5.0*tau) + 2.4);
+    s += m4 * sin(TAU * ( 2.0*uv.x + 6.0*uv.y +  7.0*tau) - 0.2);
+    s += m5 * sin(TAU * ( 1.0*uv.x + 1.0*uv.y +  1.0*tau) + 1.8);
+    return sc * s;
+  }
+
+  vec3 palette(float t){
+    // restrained: bg and fg are luminance endpoints; warmth tints fg slightly
+    float bgL = uP1.z;
+    float fgL = uP1.w;
+    float warmth = uP2.x;
+
+    vec3 bg = vec3(bgL);
+    // Warm/cool bias around neutral: warm adds red, reduces blue slightly.
+    vec3 fg = vec3(fgL) + vec3(warmth, warmth*0.35, -warmth*0.65);
+    fg = clamp(fg, 0.0, 2.0);
+    return mix(bg, fg, t);
+  }
+
+  void main(){
+    float tau = fract(u_time / u_T);
+    vec2 uv = v_uv;
+
+    float pigmentScale = uM0.x;
+    int pigmentOct = int(floor(uM0.y + 0.5));
+    float grainScale = uM0.z;
+
+    vec2 wuv = warp(uv, tau);
+    float pigment = fbmTiled(wuv * pigmentScale, pigmentOct);
+
+    float I = interference(uv, tau);
+    float macroGain = uP1.x;
+    float macro = 0.5 + 0.5 * tanh(macroGain * I);
+
+    float grain = fbmTiled(uv * grainScale, 5);
+    grain = (grain - 0.5);
+
+    float base = uP0.x;
+    float macroW = uP0.y;
+    float microW = uP0.z;
+    float grainW = uP0.w;
+
+    float D = base + macroW * macro + microW * (pigment - 0.5) + grainW * grain;
+    D = sat(D);
+
+    float gamma = uP1.y;
+    D = pow(D, gamma);
+
+    // Optional edge/transfer: cheap gradient magnitude
+    float edge = uP3.w;
+    if (edge > 0.0001){
+      vec2 e = vec2(1.0)/u_res;
+      float Dx = abs(D - pow(sat(base + macroW*(0.5+0.5*tanh(macroGain*interference(uv+vec2(e.x,0.0),tau))) + microW*(fbmTiled(warp(uv+vec2(e.x,0.0),tau)*pigmentScale, pigmentOct)-0.5) + grainW*(fbmTiled((uv+vec2(e.x,0.0))*grainScale, 5)-0.5)), gamma));
+      float Dy = abs(D - pow(sat(base + macroW*(0.5+0.5*tanh(macroGain*interference(uv+vec2(0.0,e.y),tau))) + microW*(fbmTiled(warp(uv+vec2(0.0,e.y),tau)*pigmentScale, pigmentOct)-0.5) + grainW*(fbmTiled((uv+vec2(0.0,e.y))*grainScale, 5)-0.5)), gamma));
+      float g = sat((Dx + Dy) * 6.0);
+      vec3 col = palette(D) * (1.0 - edge * g);
+      o = vec4(col, 1.0);
+      return;
+    }
+
+    o = vec4(palette(D), 1.0);
+  }`;
+
+  function glCompile(type, src){
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      const info = gl.getShaderInfoLog(sh);
+      gl.deleteShader(sh);
+      throw new Error(info || 'shader compile failed');
+    }
+    return sh;
+  }
+  function glLink(vs, fs){
+    const p = gl.createProgram();
+    gl.attachShader(p, vs);
+    gl.attachShader(p, fs);
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+      const info = gl.getProgramInfoLog(p);
+      gl.deleteProgram(p);
+      throw new Error(info || 'program link failed');
+    }
+    return p;
+  }
+
+  function initWebGL2(){
+    try{
+      gl = canvas.getContext('webgl2', { antialias:false, alpha:false, depth:false, stencil:false, powerPreference:"high-performance" });
+      if (!gl) return false;
+
+      const vs = glCompile(gl.VERTEX_SHADER, vert300);
+      const fs = glCompile(gl.FRAGMENT_SHADER, frag300);
+      const prog = glLink(vs, fs);
+      gl.deleteShader(vs); gl.deleteShader(fs);
+
+      const quad = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1,-1,  1,-1, -1, 1,
+        -1, 1,  1,-1,  1, 1
+      ]), gl.STATIC_DRAW);
+
+      const vao = gl.createVertexArray();
+      gl.bindVertexArray(vao);
+      gl.useProgram(prog);
+      const aPos = gl.getAttribLocation(prog, 'a_pos');
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+      gl.bindVertexArray(null);
+
+      glState.prog = prog;
+      glState.vao = vao;
+      glState.uRes = gl.getUniformLocation(prog, 'u_res');
+      glState.uTime = gl.getUniformLocation(prog, 'u_time');
+      glState.uT = gl.getUniformLocation(prog, 'u_T');
+      glState.uParams0 = gl.getUniformLocation(prog, 'uP0');
+      glState.uParams1 = gl.getUniformLocation(prog, 'uP1');
+      glState.uParams2 = gl.getUniformLocation(prog, 'uP2');
+      glState.uParams3 = gl.getUniformLocation(prog, 'uP3');
+      glState.uW0 = gl.getUniformLocation(prog, 'uW0');
+      glState.uW1 = gl.getUniformLocation(prog, 'uW1');
+      glState.uW2 = gl.getUniformLocation(prog, 'uW2');
+      glState.uW3 = gl.getUniformLocation(prog, 'uW3');
+      glState.uM0 = gl.getUniformLocation(prog, 'uM0');
+
+      glState.ok = true;
+      return true;
+    } catch(e){
+      glState.ok = false;
+      warn(`WebGL2 init failed. Falling back to Canvas2D. (${String(e).slice(0,120)})`);
+      mathBlock.textContent += `\n\nWebGL2 init failed:\n${String(e).slice(0, 800)}`;
+      return false;
+    }
+  }
+
+  function glResize(){
+    glState.scale = P.glScale;
+    const dpr = Math.min(2.0, window.devicePixelRatio || 1.0);
+    const cw = Math.max(2, Math.floor(innerWidth * dpr * glState.scale));
+    const ch = Math.max(2, Math.floor(innerHeight * dpr * glState.scale));
+    if (cw === glState.w && ch === glState.h) return;
+    glState.w = cw; glState.h = ch;
+    canvas.width = cw;
+    canvas.height = ch;
+    gl.viewport(0, 0, cw, ch);
+  }
+
+  function pushUniforms(){
+    if (!glState.ok) return;
+    gl.useProgram(glState.prog);
+
+    gl.uniform4f(glState.uParams0, P.base, P.macroW, P.microW, P.grainW);
+    gl.uniform4f(glState.uParams1, P.macroGain, P.gamma, P.bgL, P.fgL);
+    gl.uniform4f(glState.uParams2, P.warmth, P.macroScale, P.m1, P.m2);
+    gl.uniform4f(glState.uParams3, P.m3, P.m4, P.m5, P.edge);
+
+    gl.uniform4f(glState.uW0, P.A0, P.A1, P.B0, P.B1);
+    gl.uniform4f(glState.uW1, P.qA, P.rAlpha, P.qB, P.rBeta);
+    gl.uniform4f(glState.uW2, P.A20, P.A21, P.B20, P.B21);
+    gl.uniform4f(glState.uW3, P.qA2, P.rA2, P.qB2, P.rB2);
+
+    gl.uniform4f(glState.uM0, P.pigmentScale, P.pigmentOct, P.grainScale, 0.0);
+  }
+
+  function glFrame(now){
+    glResize();
+    seqUpdate(now);
+    const t = (now - glState.t0) * 0.001;
+    const tau = tauFromTimeSeconds(t);
+    timePill.textContent = `τ: ${tau.toFixed(3)}`;
+
+    gl.useProgram(glState.prog);
+    gl.bindVertexArray(glState.vao);
+    gl.uniform2f(glState.uRes, glState.w, glState.h);
+    gl.uniform1f(glState.uTime, t);
+    gl.uniform1f(glState.uT, Math.max(1e-6, P.T_SECONDS));
+    pushUniforms();
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    requestAnimationFrame(glFrame);
+  }
+
+  // ---------- Canvas2D backend ----------
+  let ctx2 = null;
+  let cpu = { w:0, h:0, img:null, data:null, t0:0 };
+
+  function hash32(x, y){
+    let n = (x * 374761393 + y * 668265263) | 0;
+    n ^= n >>> 13;
+    n = Math.imul(n, 1274126177);
+    n ^= n >>> 16;
+    return n >>> 0;
+  }
+  function hash01(x, y){ return (hash32(x,y) / 4294967296); }
+  function fade(t){ return t*t*(3 - 2*t); }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  function valueNoiseTiled(ux, uy, N){
+    const x = ux * N, y = uy * N;
+    let ix = Math.floor(x), iy = Math.floor(y);
+    const fx = x - ix, fy = y - iy;
+    ix = ((ix % N) + N) % N;
+    iy = ((iy % N) + N) % N;
+    const ix1 = (ix + 1) % N, iy1 = (iy + 1) % N;
+
+    const a = hash01(ix, iy);
+    const b = hash01(ix1, iy);
+    const c = hash01(ix, iy1);
+    const d = hash01(ix1, iy1);
+
+    const u = fade(fx), v = fade(fy);
+    return lerp(lerp(a,b,u), lerp(c,d,u), v);
+  }
+
+  function fbmTiled(ux, uy, oct){
+    let s=0, amp=0.55, N=128;
+    let x=ux, y=uy;
+    for (let i=0;i<7;i++){
+      if (i >= oct) break;
+      x = x - Math.floor(x);
+      y = y - Math.floor(y);
+      s += amp * valueNoiseTiled(x, y, N);
+      x = (x * 2) % 1;
+      y = (y * 2) % 1;
+      amp *= 0.5;
+      N = Math.min(N*2, 1024);
+    }
+    return s;
+  }
+
+  function warpCPU(ux, uy, tau){
+    const TAU = Math.PI * 2;
+
+    const A = P.A0 + P.A1 * Math.sin(TAU * (P.qA * tau));
+    const B = P.B0 + P.B1 * Math.sin(TAU * (P.qB * tau));
+    const alpha = TAU * (P.rAlpha * tau);
+    const beta  = TAU * (P.rBeta  * tau);
+
+    let x1 = ux + A * Math.sin(TAU * uy + alpha); x1 -= Math.floor(x1);
+    let y2 = uy + B * Math.sin(TAU * x1 + beta);  y2 -= Math.floor(y2);
+
+    const A2 = P.A20 + P.A21 * Math.sin(TAU * (P.qA2 * tau));
+    const B2 = P.B20 + P.B21 * Math.sin(TAU * (P.qB2 * tau));
+    const alpha2 = TAU * (P.rA2 * tau);
+    const beta2  = TAU * (P.rB2 * tau);
+
+    let x3 = x1 + A2 * Math.sin(TAU * y2 + alpha2); x3 -= Math.floor(x3);
+    let y4 = y2 + B2 * Math.sin(TAU * x3 + beta2);  y4 -= Math.floor(y4);
+
+    return [x3, y4];
+  }
+
+  function interferenceCPU(ux, uy, tau){
+    const TAU = Math.PI * 2;
+    let s=0;
+    s += P.m1 * Math.sin(TAU * ( 3*ux + 1*uy + 2*tau) + 0.7);
+    s += P.m2 * Math.sin(TAU * ( 1*ux + 4*uy + 3*tau) - 1.1);
+    s += P.m3 * Math.sin(TAU * ( 5*ux + 2*uy + 5*tau) + 2.4);
+    s += P.m4 * Math.sin(TAU * ( 2*ux + 6*uy + 7*tau) - 0.2);
+    s += P.m5 * Math.sin(TAU * ( 1*ux + 1*uy + 1*tau) + 1.8);
+    return P.macroScale * s;
+  }
+
+  function paletteCPU(t){
+    const bgL = P.bgL;
+    const fgL = P.fgL;
+    const w = P.warmth;
+    const bg = [bgL, bgL, bgL];
+    const fg = [
+      Math.max(0, Math.min(2, fgL + w)),
+      Math.max(0, Math.min(2, fgL + w*0.35)),
+      Math.max(0, Math.min(2, fgL - w*0.65))
+    ];
+    return [
+      bg[0] + (fg[0]-bg[0])*t,
+      bg[1] + (fg[1]-bg[1])*t,
+      bg[2] + (fg[2]-bg[2])*t
+    ];
+  }
+
+  function cpuResize(){
+    const aspect = innerWidth / Math.max(1, innerHeight);
+    let w = Math.max(80, Math.floor(P.cpuBaseW));
+    let h = Math.max(2, Math.floor(w / Math.max(0.2, aspect)));
+    const maxPix = Math.max(2000, Math.floor(P.cpuMaxPixels));
+    if (w*h > maxPix){
+      const sc = Math.sqrt(maxPix / (w*h));
+      w = Math.max(2, Math.floor(w*sc));
+      h = Math.max(2, Math.floor(h*sc));
+    }
+    if (w === cpu.w && h === cpu.h) return;
+
+    cpu.w = w; cpu.h = h;
+    canvas.width = w;
+    canvas.height = h;
+
+    if (ctx2) ctx2.imageSmoothingEnabled = true;
+    cpu.img = ctx2.createImageData(w, h);
+    cpu.data = cpu.img.data;
+  }
+
+  function cpuFrame(now){
+    cpuResize();
+    seqUpdate(now);
+
+    const t = (now - cpu.t0) * 0.001;
+    const tau = tauFromTimeSeconds(t);
+    timePill.textContent = `τ: ${tau.toFixed(3)}`;
+
+    const w = cpu.w, h = cpu.h;
+    const d = cpu.data;
+
+    let p=0;
+    for (let j=0;j<h;j++){
+      const uy = (j + 0.5) / h;
+      for (let i=0;i<w;i++){
+        const ux = (i + 0.5) / w;
+
+        const wuv = warpCPU(ux, uy, tau);
+        const pigment = fbmTiled(wuv[0] * P.pigmentScale, wuv[1] * P.pigmentScale, Math.round(P.pigmentOct));
+
+        const I = interferenceCPU(ux, uy, tau);
+        const macro = 0.5 + 0.5 * Math.tanh(P.macroGain * I);
+
+        let grain = fbmTiled((ux*P.grainScale)%1, (uy*P.grainScale)%1, 5);
+        grain = (grain - 0.5);
+
+        let D = P.base + P.macroW * macro + P.microW * (pigment - 0.5) + P.grainW * grain;
+        D = Math.max(0, Math.min(1, D));
+        D = Math.pow(D, P.gamma);
+
+        const col = paletteCPU(D);
+        // edge transfer (optional): cheap finite difference
+        if (P.edge > 0.0001){
+          const epsx = 1.0 / w, epsy = 1.0 / h;
+          const I2 = interferenceCPU(ux + epsx, uy, tau);
+          const macro2 = 0.5 + 0.5 * Math.tanh(P.macroGain * I2);
+          const wuv2 = warpCPU(ux + epsx, uy, tau);
+          const pigment2 = fbmTiled(wuv2[0]*P.pigmentScale, wuv2[1]*P.pigmentScale, Math.round(P.pigmentOct));
+          let grain2 = fbmTiled(((ux+epsx)*P.grainScale)%1, (uy*P.grainScale)%1, 5); grain2 -= 0.5;
+          let D2 = P.base + P.macroW*macro2 + P.microW*(pigment2-0.5) + P.grainW*grain2;
+          D2 = Math.max(0, Math.min(1, D2));
+          D2 = Math.pow(D2, P.gamma);
+          const g = Math.min(1, Math.abs(D2 - D) * 10);
+          const k = 1 - P.edge * g;
+          col[0]*=k; col[1]*=k; col[2]*=k;
+        }
+
+        d[p++] = Math.round(Math.max(0, Math.min(255, col[0]*255)));
+        d[p++] = Math.round(Math.max(0, Math.min(255, col[1]*255)));
+        d[p++] = Math.round(Math.max(0, Math.min(255, col[2]*255)));
+        d[p++] = 255;
+      }
+    }
+
+    ctx2.putImageData(cpu.img, 0, 0);
+    requestAnimationFrame(cpuFrame);
+  }
+
+  function initCanvas2D(){
+    try{
+      ctx2 = canvas.getContext('2d', { alpha:false, desynchronized:true });
+      if (!ctx2) throw new Error("2D context unavailable");
+      return true;
+    } catch(e){
+      warn(`Canvas2D init failed: ${String(e).slice(0,160)}`);
+      mathBlock.textContent += `\n\nCanvas2D init failed:\n${String(e).slice(0,800)}`;
+      return false;
+    }
+  }
+
+  // =================== Live apply ===================
+  function applyParams(){
+    // Called when sliders move.
+    // For WebGL: just push uniforms next frame; for CPU: resize may happen automatically.
+    if (BACKEND === "WEBGL2" && glState.ok) {
+      // nothing special; uniforms are pushed each frame
+    }
+  }
+
+  // =================== Start logic ===================
+  async function begin(mode){
+    // Re-entry: render loop is already running; just switch mode.
+    if (started) return;
+    started = true;
+clearWarn();
+
+    if (mode === "KIOSK") await goFullscreen();
+    setMode(mode);
+
+    // Decide backend:
+    // - If probe says WebGL2 exists AND not software, try WebGL2.
+    // - Otherwise Canvas2D.
+    let ok = false;
+    if (renderProbe.ok && !renderProbe.isSoftware){
+      ok = initWebGL2();
+      if (ok){
+        setBackend("WEBGL2");
+        glState.t0 = performance.now();
+        glState.last = glState.t0;
+
+        // Set initial scale from params
+        glState.scale = P.glScale;
+
+        requestAnimationFrame(glFrame);
+        return;
+      }
+    }
+
+    const ok2 = initCanvas2D();
+    if (!ok2) return;
+    setBackend("CANVAS2D");
+    cpu.t0 = performance.now();
+    requestAnimationFrame(cpuFrame);
+  }
+
+  document.getElementById('beginKiosk').addEventListener('click', () => begin("KIOSK"));
+  document.getElementById('beginStudio').addEventListener('click', () => begin("STUDIO"));
+
+  // Studio UI build now (even before starting)
+  buildUI();
+
+  // Default: hide studio UI
+  setStudioUI(false);
+
+  // Gate mode on load
+  setMode("GATE");
+})();
+</script>
+</body>
+</html>
