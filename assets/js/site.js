@@ -107,7 +107,10 @@
   const grid = document.getElementById("worksGrid");
   if (grid) {
     grid.innerHTML = WORKS.map(w => `
-      <a class="work" href="${w.href}">
+      <a class="work"
+         href="${w.href}"
+         ${w.external ? `target="_blank" rel="noreferrer"` : ``}>
+
         <video class="workPreview" autoplay loop muted playsinline preload="metadata"
           src="${w.preview}" poster="${w.poster || ""}"></video>
         <div class="workBody">
