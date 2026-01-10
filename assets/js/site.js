@@ -38,7 +38,7 @@
       title: "OLU // STUDY_01: CHROMA",
       year: "2026",
       type: "loop",
-      medium: "Realtime colour-field",
+      medium: "Realtime procedural field",
       desc: "A disciplined colour-field study computed in realtime. Concentric planes contract toward a centre square; hue and luminance shift through a fixed cycle for seamless long-duration display.",
       href: "works/ColourStudy/",
       preview: "assets/video/olu_colour_study_oklch_cycle_64s (1).webm"  
