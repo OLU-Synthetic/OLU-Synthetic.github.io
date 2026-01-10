@@ -35,7 +35,7 @@
       poster: "assets/img/thumbs/tesseract_engine.jpg"
     },
     {
-      title: "OLU // STUDY_01: CHROMA",
+      title: "Study_01: CHROMA",
       year: "2026",
       type: "loop",
       medium: "Realtime procedural field",
@@ -53,7 +53,7 @@
       preview: "assets/video/Tesseract_Preview02.webm"
     },
     { 
-      title: "DATA_SCRAPE",
+      title: "Data_Scrape",
       year: "2026",
       type: "loop",
       medium: "Realtime procerdual field",
