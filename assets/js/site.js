@@ -14,16 +14,6 @@
 
   // ========= Works =========
   const WORKS = [
-    {
-      title: "ATHAMAL",
-      year: "2026",
-      type: "loop",
-      medium: "Realtime procedural toy",
-      desc: "A ritual engine: slow geometry, signal, and breath. Editorial restraint, alien intent.",
-      href: "works/athamal/",
-      preview: "assets/video/athamal_preview.webm",
-      poster: "assets/img/thumbs/athamal.jpg"
-    },
     { 
       title: "Data_Scrape",
       year: "2026",
@@ -34,6 +24,17 @@
       preview: "assets/video/data_scrape_loop.webm",
       poster: "assets/img/thumbs/data_scrape_preview.png"
     },
+    {
+      title: "ATHAMAL",
+      year: "2026",
+      type: "loop",
+      medium: "Realtime procedural toy",
+      desc: "A ritual engine: slow geometry, signal, and breath. Editorial restraint, alien intent.",
+      href: "works/athamal/",
+      preview: "assets/video/athamal_preview.webm",
+      poster: "assets/img/thumbs/athamal.jpg"
+    },
+    
     {
       title: "Tesseract_Engine",
       year: "2026",
@@ -65,15 +66,6 @@
     },
     */
     {
-      title: "FormalLoop",
-      year: "2026",
-      type: "loop",
-      medium: "Realtime loop",
-      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
-      href: "works/FormalLoop/",
-      preview: "assets/video/FormalLoopPreview01-1.mp4"
-    },
-    {
       title: "Simulation Simulator",
       year: "2025",
       type: "Realtime ambient sim",
@@ -82,7 +74,17 @@
       href: "https://xvrz.itch.io/simulation-simulator-2025",
       poster: "assets/img/thumbs/SimSimPoster.png",
       external: true
+    },
+    {
+      title: "FormalLoop",
+      year: "2026",
+      type: "loop",
+      medium: "Realtime loop",
+      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
+      href: "works/FormalLoop/",
+      preview: "assets/video/FormalLoopPreview01-1.mp4"
     }
+    
 
  
   ];
