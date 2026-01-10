@@ -61,7 +61,16 @@
       href: "works/Klee_Mation/",
       preview: "assets/video/tesseract_preview.webm",
       poster: "assets/img/thumbs/tesseract_engine.jpg"
-    }  
+    },
+    {
+      title: "FormalLoop",
+      year: "2026",
+      type: "loop",
+      medium: "Realtime loop",
+      desc: "Hyperdimensional instrument for form, orbit, and transformation — built for gallery outputs.",
+      href: "works/FormalLoop/",
+      preview: "assets/video/FormalLoopPreview01-1.mp4"
+    }
  
   ];
 
