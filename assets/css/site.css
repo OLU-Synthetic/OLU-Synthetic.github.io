@@ -284,9 +284,9 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
 }
 
 .headshot{
-  flex: 0 0 50px;   /* your target size */
-  width: 50px;
-  height: 50px;
+  flex: 0 0 100px;   /* your target size */
+  width: 100px;
+  height: 150px;
   margin: 0;
   overflow: hidden;
   border-radius: 14px;
