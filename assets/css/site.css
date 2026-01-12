@@ -45,8 +45,8 @@ body::before{
   background-image: url("assets/img/grain.png");
   background-repeat: repeat;
 
-  opacity: 0.035;
-  mix-blend-mode: soft-light; /* less “game overlay” than overlay */
+  opacity: 0.25;
+  mix-blend-mode: normal; /* less “game overlay” than overlay */
 }
 
 a{color:inherit; text-underline-offset:3px}
