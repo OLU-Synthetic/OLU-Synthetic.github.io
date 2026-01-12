@@ -7,7 +7,10 @@
   --card: rgba(255,255,255,.06);
   --line: rgba(255,255,255,.14);
   --accent: #c7ff4d;
-  --shadow: 0 10px 40px rgba(0,0,0,.35);
+
+  /* B) Kill most shadows */
+  --shadow: 0 6px 18px rgba(0,0,0,.22);
+
   --radius: 18px;
   --font: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
@@ -19,7 +22,9 @@
   --card: rgba(11,11,12,.05);
   --line: rgba(11,11,12,.14);
   --accent:#1b7cff;
-  --shadow: 0 12px 38px rgba(0,0,0,.12);
+
+  /* keep light shadow even softer */
+  --shadow: 0 6px 16px rgba(0,0,0,.10);
 }
 
 *{box-sizing:border-box}
@@ -34,19 +39,20 @@ body{
   padding-top: var(--barH); /* because topbar is fixed */
 }
 
-/* Subtle film grain overlay (under UI chrome) */
+/* Subtle film grain overlay (subtle + tasteful) */
 body::before{
   content:"";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 1;
 
   background-image: url("assets/img/grain.png");
   background-repeat: repeat;
 
-  opacity: 0.25;
-  mix-blend-mode: normal; /* less “game overlay” than overlay */
+  /* tune this */
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
 }
 
 a{color:inherit; text-underline-offset:3px}
@@ -122,12 +128,20 @@ a:hover{opacity:.95}
 }
 .iconBtn svg{fill: currentColor}
 
+/* D) Audio UI: hide slider until needed */
 .vol{
-  width: 110px;
+  width: 0;
+  opacity: 0;
+  pointer-events:none;
+  transition: width .2s ease, opacity .2s ease;
   accent-color: var(--accent);
-  opacity:.9;
 }
-.vol:hover{opacity:1}
+.topControls:hover .vol,
+.topControls:focus-within .vol{
+  width: 110px;
+  opacity: .9;
+  pointer-events:auto;
+}
 
 /* HERO */
 .hero{
@@ -229,21 +243,23 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   gap:14px;
 }
 
+/* Cards: border + fill only (less UI-kit) */
 .work{
   grid-column: span 6;
   border:1px solid var(--line);
   border-radius: var(--radius);
   overflow:hidden;
   background: var(--card);
-  box-shadow: var(--shadow);
+  box-shadow: none; /* B) remove shadow for works */
   text-decoration:none;
   transform: translateY(0);
-  transition: transform .18s ease, border-color .18s ease;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
   display:block;
 }
 .work:hover{
   transform: translateY(-4px);
   border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+  background: color-mix(in oklab, var(--card) 88%, transparent);
 }
 
 .workPreview{
@@ -266,13 +282,23 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
 }
 .workDesc{margin:10px 0 0; color:var(--muted); line-height:1.35}
 
+/* C) Featured: caption block, not a “card” */
 .featuredCard{
-  border:1px solid var(--line);
-  border-radius: var(--radius);
-  background: color-mix(in oklab, var(--card) 80%, transparent);
-  padding:16px;
-  max-width: 520px;
-  box-shadow: var(--shadow);
+  background: transparent;
+  border:0;
+  border-radius: 0;
+  box-shadow:none;
+  padding:0;
+  max-width: 52ch;
+}
+.featuredCard::before{
+  content:"";
+  display:block;
+  width: 48px;
+  height: 1px;
+  background: var(--line);
+  margin-bottom: 14px;
+  opacity:.8;
 }
 
 .twoCol{
@@ -286,10 +312,10 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   background: var(--card);
   border-radius: var(--radius);
   padding:16px;
-  box-shadow: var(--shadow);
+  box-shadow: none; /* B) remove card shadow */
 }
 
-/* ✅ PATCHED: Statement (image LEFT 1/3, text RIGHT 2/3, smaller photo) */
+/* ✅ Statement (your current patched layout) */
 .statementRow{
   display: grid;
   grid-template-columns: 1fr 2fr; /* 1/3 + 2/3 */
@@ -301,7 +327,7 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   grid-column: 1;
   justify-self: start;
 
-  width: 160px;          /* smaller */
+  width: 160px;
   height: auto;
   aspect-ratio: 3 / 4;
   object-fit: cover;
@@ -309,7 +335,7 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
 
   border-radius: 18px;
   border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+  box-shadow: none; /* B) no shadow */
   background: color-mix(in oklab, var(--bg) 80%, #000);
 }
 
@@ -341,7 +367,6 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
 }
 
 @media (max-width: 560px){
-  .vol{width: 86px}
   .work{grid-column: span 12}
 
   .statementRow{
@@ -349,5 +374,12 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   }
   .headshot{
     width: min(220px, 75vw);
+  }
+
+  /* on mobile, don’t animate slider width constantly */
+  .vol{
+    width: 86px;
+    opacity: .9;
+    pointer-events:auto;
   }
 }
