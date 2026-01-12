@@ -39,7 +39,7 @@ body{
   padding-top: var(--barH); /* because topbar is fixed */
 }
 
-/* Subtle film grain overlay (subtle + tasteful) */
+/* Noise overlay (single file for both themes) */
 body::before{
   content:"";
   position: fixed;
@@ -47,12 +47,12 @@ body::before{
   pointer-events: none;
   z-index: 1;
 
-  background-image: url("assets/img/grain.png");
+  background-image: url("assets/img/noise.png");
   background-repeat: repeat;
+  background-size: 256px 256px; /* match the tile size */
 
-  /* tune this */
-  opacity: 0.06;
-  mix-blend-mode: soft-light;
+  opacity: .08;              /* dark default */
+  mix-blend-mode: soft-light;/* good in dark */
 }
 
 a{color:inherit; text-underline-offset:3px}
