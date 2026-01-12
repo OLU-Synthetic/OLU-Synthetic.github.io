@@ -273,54 +273,35 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   box-shadow: var(--shadow);
 }
 
-
-
+/* ✅ FIXED: Statement alignment */
 .statementRow{
-  display:flex;
-  gap:14px;
-  align-items:flex-start;
+  display:grid;
+  grid-template-columns: 1fr 240px; /* text + photo */
+  gap: 28px;
+  align-items:start;
 }
 
 .statementText{
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.statementText p{
-  margin: 0;
+  margin:0;
+  max-width: 62ch;
+  line-height: 1.35;
 }
 
 .headshot{
-  flex: 0 0 100px;   /* your target size */
-  width: 100px;
-  height: 150px;
-  margin: 0;
-  overflow: hidden;
-  border-radius: 14px;
+  width: 240px;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display:block;
+
+  border-radius: 18px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
   background: color-mix(in oklab, var(--bg) 80%, #000);
+
+  justify-self:end;
+  align-self:start;
 }
-
-.headshot img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-
-@media (max-width: 560px){
-  .statementRow{ flex-direction: column; }
-  .headshot img{
-    width: min(220px, 100%);
-    height: auto;
-    aspect-ratio: 1 / 1;
-  }
-}
-
-
-
 
 .list{margin:0; padding-left:18px}
 .list li{margin:6px 0}
@@ -341,7 +322,16 @@ h2{margin:0; font-size:26px; letter-spacing:-0.02em}
   .heroPane--left{border-right:0; border-bottom:1px solid var(--line)}
   .twoCol{grid-template-columns: 1fr}
 }
+
 @media (max-width: 560px){
   .vol{width: 86px}
   .work{grid-column: span 12}
+
+  .statementRow{
+    grid-template-columns: 1fr;
+  }
+  .headshot{
+    justify-self:start;
+    width: min(260px, 75vw);
+  }
 }
