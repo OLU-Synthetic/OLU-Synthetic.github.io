@@ -34,6 +34,22 @@ body{
   padding-top: var(--barH); /* because topbar is fixed */
 }
 
+/* Subtle film grain overlay */
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+
+  background-image: url("assets/img/grain.png");
+  background-repeat: repeat;
+
+  opacity: 0.06;               /* 0.04–0.09 sweet spot */
+  mix-blend-mode: overlay;     /* try: soft-light if you prefer */
+}
+
+
 a{color:inherit; text-underline-offset:3px}
 a:hover{opacity:.95}
 
